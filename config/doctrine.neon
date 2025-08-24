@@ -1,0 +1,29 @@
+extensions:
+    console: Contributte\Console\DI\ConsoleExtension
+    doctrine.dbal: Nettrine\DBAL\DI\DbalExtension
+    doctrine.orm: Nettrine\ORM\DI\OrmExtension
+    doctrine.migrations: Nettrine\Migrations\DI\MigrationsExtension
+
+doctrine.dbal:
+    connections:
+        default:
+            driver: pdo_mysql
+            host: 127.0.0.1
+            user: root
+            password: ""
+            dbname: noctis
+
+doctrine.orm:
+    managers:
+        default:
+            defaultCache: Symfony\Component\Cache\Adapter\FilesystemAdapter(directory: %tempDir%/cache/doctrine/orm)
+            connection: default
+            mapping:
+                App:
+                    directories: [%appDir%/../src/NoctisRealmsTCG/Model/Entity]
+                    namespace: App\Model\Entity
+
+doctrine.migrations:
+    directories:
+        default: %appDir%/Migrations
+    

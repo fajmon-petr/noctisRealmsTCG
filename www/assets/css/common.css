@@ -1,0 +1,170 @@
+/* ====== Theme (3 barvy) ====== */
+:root{
+  --bg:#0b0b10; --panel:#14141c; --muted:#9597a1; --text:#e9e9ee;
+  --ignis:#E53935; --vitae:#43A047; --noctis:#6A1B9A;
+  --accent:var(--noctis);
+}
+
+/* ====== Reset & base ====== */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  color:var(--text); background:var(--bg);
+  background-image:
+    radial-gradient(1000px 600px at 80% -10%, rgba(106,27,154,.18), transparent 60%),
+    radial-gradient(800px 500px at 10% 0%, rgba(67,160,71,.12), transparent 65%),
+    radial-gradient(900px 700px at 50% 120%, rgba(229,57,53,.10), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+  background-attachment:fixed;
+
+  /* pro pixel-déšť */
+  position:relative; overflow-x:hidden;
+}
+a{color:var(--text); text-decoration:none}
+a:hover{opacity:.9}
+.container{max-width:1040px; margin:0 auto; padding:24px}
+
+/* ====== Header / nav (zvedneme nad déšť) ====== */
+.header{
+  position:sticky; top:0; z-index:2;                /* <<< DŮLEŽITÉ */
+  background:linear-gradient(180deg, rgba(20,20,28,.9), rgba(20,20,28,.6));
+  backdrop-filter:blur(6px);
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.header-inner{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 24px}
+.brand{display:flex; align-items:center; gap:12px}
+.brand-badge{
+  width:28px; height:28px; border-radius:8px;
+  background:conic-gradient(from 210deg, var(--accent), #934db7 35%, #2f2f45 60%, var(--accent) 100%);
+  box-shadow:0 0 24px rgba(106,27,154,.25), inset 0 0 16px rgba(255,255,255,.06);
+}
+.brand h1{margin:0; font-size:18px; letter-spacing:.4px}
+.nav{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+.nav a{padding:8px 12px; border-radius:10px; font-size:14px; color:#cfcfe8}
+.nav a.active, .btn{
+  background:linear-gradient(135deg, var(--accent), color-mix(in oklab, var(--accent) 80%, white 20%));
+  color:#fff; border:0;
+}
+
+/* ====== Buttons, inputs ====== */
+.btn{display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:12px; cursor:pointer; box-shadow:0 10px 18px rgba(106,27,154,.22)}
+.btn-ghost{background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); color:#eaeaf4}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+
+form{display:grid; gap:14px; max-width:420px}
+label{font-weight:600; color:#d6d6e5}
+input[type="email"], input[type="password"], input[type="text"]{
+  width:100%; padding:11px 12px; border-radius:12px; border:1px solid rgba(255,255,255,.10);
+  background:#11131a; color:var(--text); box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+}
+input::placeholder{color:#8a8ca0}
+input:focus{outline:2px solid color-mix(in oklab, var(--accent) 40%, white 10%); outline-offset:2px}
+
+/* ====== Cards / panely ====== */
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+  border-radius:16px; padding:18px;
+  position:relative; z-index:1;                      /* <<< DŮLEŽITÉ – nad deštěm */
+}
+
+/* ====== Flash zprávy ====== */
+.flashes-top{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin:16px 0 20px;
+}
+
+.alert{
+  padding:12px 14px;
+  border-radius:12px;
+  font-weight:600;
+  line-height:1.3;
+  border:1px solid transparent;
+  box-shadow:0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.04);
+  background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+}
+
+/* typy */
+.alert.success{
+  border-color: rgba(67,160,71,.45);
+  background: linear-gradient(180deg, rgba(67,160,71,.18), rgba(67,160,71,.08));
+  box-shadow: 0 0 0 1px rgba(67,160,71,.20), 0 10px 30px rgba(67,160,71,.12);
+}
+
+.alert.warning{
+  border-color: rgba(255,193,7,.45);
+  background: linear-gradient(180deg, rgba(255,193,7,.18), rgba(255,193,7,.08));
+  box-shadow: 0 0 0 1px rgba(255,193,7,.20), 0 10px 30px rgba(255,193,7,.12);
+}
+
+.alert.error{
+  border-color: rgba(229,57,53,.45);
+  background: linear-gradient(180deg, rgba(229,57,53,.18), rgba(229,57,53,.08));
+  box-shadow: 0 0 0 1px rgba(229,57,53,.20), 0 10px 30px rgba(229,57,53,.12);
+}
+
+.alert.info{
+  border-color: rgba(106,27,154,.45);
+  background: linear-gradient(180deg, rgba(106,27,154,.18), rgba(106,27,154,.08));
+  box-shadow: 0 0 0 1px rgba(106,27,154,.20), 0 10px 30px rgba(106,27,154,.12);
+}
+
+/* ====== Footer ====== */
+.footer{opacity:.8; color:var(--muted); font-size:13px; padding:24px; position:relative; z-index:1}
+
+/* ====== PIXEL RAIN ====== */
+#pixel-rain{
+  position:fixed; inset:0;
+  width:100vw; height:100vh;
+  pointer-events:none; overflow:hidden;
+  z-index:0;
+  transform: translateZ(0);          /* vlastní kompoziční vrstva */
+  will-change: transform;
+}
+
+.pixel{
+  position:absolute;
+  width:3px; height:3px; opacity:.9; border-radius:3px;
+  transform: translateY(var(--start, -20vh));  /* start z proměnné */
+  animation: fallT linear infinite;
+  animation-duration: var(--dur, 10s);
+  animation-delay: var(--delay, 0s);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+@keyframes fallT{
+  to { transform: translateY(110vh); opacity:0; }  /* z aktuální pozice do 110vh */
+}
+
+/* pravá strana headeru: měna + nav */
+.header-right{ display:flex; align-items:center; gap:12px; }
+
+/* moonDust kapsle */
+.currency-pill{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 10px; border-radius:12px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  color: #eaeaf4; font-weight: 700;
+  box-shadow: 0 8px 18px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.currency-pill:hover{ background: rgba(255,255,255,.10); }
+
+/* ikonka písku (měsíc) */
+.dust-icon{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:22px; height:22px; border-radius:50%;
+  color:#f2e9ff;
+  background: radial-gradient(60% 60% at 35% 35%, #caa6ff 0%, #7a4cff 60%, #4a2b8f 100%);
+  box-shadow: 0 0 10px rgba(149,99,255,.35);
+}
+
+/* texty v kapsli */
+.dust-label{ font-size:.85rem; opacity:.85; }
+.dust-value{ min-width: 36px; text-align:right; letter-spacing:.2px; }

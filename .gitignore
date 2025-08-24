@@ -1,0 +1,16 @@
+/vendor/
+/temp/*
+!/temp/.gitkeep
+/log/*
+!/log/.gitkeep
+config/local*.neon
+app/config/local*.neon
+/composer.phar
+/node_modules/
+/dist/
+/build/
+www/assets/build/
+/.vite/
+/.idea/
+/.vscode/
+.DS_Store

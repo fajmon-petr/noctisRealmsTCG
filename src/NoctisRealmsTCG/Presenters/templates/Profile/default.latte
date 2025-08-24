@@ -1,0 +1,115 @@
+{block head}
+    {include parent}
+    <link rel="stylesheet" href="{$basePath}/assets/css/profile.css?v={$assetsVer}">
+{/block}
+
+{block content}
+{var $nick = $profile?->nickname ?? $profile?->user?->email ?? ''}
+{var $initial = $nick ? strtoupper(substr($nick, 0, 1)) : 'N'}
+{var $email = $profile?->user?->email ?? null}
+{var $level = $level ?? 1}
+{var $xp = $xp ?? 0}
+{var $xpToNext = $xpToNext ?? 100}
+{var $xpPct = $xpPct ?? 0}
+
+<div class="container py-4">
+  <ul class="nav nav-pills nr-tabs gap-2 mb-3" role="tablist">
+    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tabProfile" role="tab">Profil</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabFaction" role="tab">Frakce</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabAchievements" role="tab">Úspěchy</a></li>
+  </ul>
+
+  <div class="tab-content">
+    <!-- TAB 1 -->
+    <div class="tab-pane fade show active" id="tabProfile" role="tabpanel">
+      <div class="nr-glass p-3 p-md-4 rounded-4 mb-3">
+        <div class="row g-4">
+          <div class="col-12 col-lg-4">
+            <div class="nr-panel h-100 p-3 p-md-4 rounded-4">
+              <div class="d-flex align-items-center gap-3">
+                <div class="position-relative">
+                  <div class="nr-avatar d-flex align-items-center justify-content-center">{$initial}</div>
+                  <div class="nr-level-badge">{$level}</div>
+                </div>
+                <div>
+                  <div class="nr-title mb-1">{$profile?->nickname ?? 'Jméno'}</div>
+                  <div class="text-muted small">{if $email}<a class="nr-link" href="mailto:{$email}">{$email}</a>{else}—{/if}</div>
+                </div>
+              </div>
+              <div class="d-grid gap-2 mt-4">
+                {*<a n:href="Profile:edit id => $profile?->id" class="nr-btn">Upravit profil</a>
+                <a n:href="Faction:list" class="nr-btn-ghost">Změnit frakci</a>*}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-lg-8">
+            <div class="nr-grid">
+              <div class="nr-field"><div class="nr-label">Jméno</div><div class="nr-box">{$profile?->nickname ?? '—'}</div></div>
+              <div class="nr-field"><div class="nr-label">Email</div><div class="nr-box">{if $email}<a class="nr-link" href="mailto:{$email}">{$email}</a>{else}—{/if}</div></div>
+              <div class="nr-field"><div class="nr-label">Frakce</div>
+                <div class="nr-box d-flex align-items-center gap-2">
+                  <span class="nr-dot" style="background: {$profile?->faction?->color ?? '#6a1b9a'}"></span>
+                  <span>{$profile?->faction?->name ?? '—'}</span>
+                </div>
+              </div>
+
+              <div class="nr-stat"><div class="nr-box"><div class="nr-stat-label">Počet karet</div><div class="nr-stat-value">{$profile?->cards ?? 0}</div></div></div>
+              <div class="nr-stat"><div class="nr-box"><div class="nr-stat-label">Otevřené balíčky</div><div class="nr-stat-value">{$profile?->openedPacks ?? 0}</div></div></div>
+              <div class="nr-stat"><div class="nr-box"><div class="nr-stat-label">Achievementy</div><div class="nr-stat-value">{$profile?->achievements ?? 0}</div></div></div>
+
+              <div class="nr-full">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="nr-label">Postup na další úroveň</div>
+                  <div class="text-muted small">{$xp} / {$xpToNext} XP</div>
+                </div>
+                <div class="nr-progress" style="--pct: {$xpPct}%;">
+                  <div class="nr-progress-bar" role="progressbar" aria-valuenow="{$xpPct}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
+
+              {if $profile?->faction?->description}
+                <div class="nr-full">
+                  <div class="nr-label">Popis frakce</div>
+                  <div class="nr-box">{$profile->faction->description}</div>
+                </div>
+              {/if}
+
+              <div class="nr-actions nr-full">
+                {*<a n:href="Profile:edit id => $profile?->id" class="nr-chip">Upravit profil</a>
+                <a n:href="Faction:list" class="nr-chip">Změnit frakci</a>
+                <a n:href="Card:inventory userId => $profile?->user?->id" class="nr-chip">Zobrazit karty</a>*}
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2 (placeholder) -->
+    <div class="tab-pane fade" id="tabFaction" role="tabpanel">
+      <div class="nr-glass p-3 p-md-4 rounded-4">
+        <div class="nr-title mb-3">Frakce</div>
+        <div class="nr-grid">
+          <div class="nr-field"><div class="nr-label">Název</div><div class="nr-box">{$profile?->faction?->name ?? '—'}</div></div>
+          <div class="nr-field"><div class="nr-label">Barva</div><div class="nr-box d-flex align-items-center gap-2"><span class="nr-dot" style="background: {$profile?->faction?->color ?? '#6a1b9a'}"></span><span>{$profile?->faction?->color ?? '—'}</span></div></div>
+          <div class="nr-full"><div class="nr-label">Popis</div><div class="nr-box">{$profile?->faction?->description ?? '—'}</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3 (placeholder) -->
+    <div class="tab-pane fade" id="tabAchievements" role="tabpanel">
+      <div class="nr-glass p-3 p-md-4 rounded-4">
+        <div class="nr-title mb-3">Úspěchy & Karty</div>
+        <div class="nr-grid">
+          <div class="nr-stat"><div class="nr-box"><div class="nr-stat-label">Achievementy</div><div class="nr-stat-value">{$profile?->achievements ?? 0}</div></div></div>
+          <div class="nr-stat"><div class="nr-box"><div class="nr-stat-label">Karty celkem</div><div class="nr-stat-value">{$profile?->cards ?? 0}</div></div></div>
+          <div class="nr-full"><div class="nr-label">Seznam (WIP)</div><div class="nr-box">Sem pak hodíme výpis karet a odznaků…</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{/block}

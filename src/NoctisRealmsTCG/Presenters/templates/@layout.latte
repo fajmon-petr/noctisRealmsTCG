@@ -1,0 +1,117 @@
+{* app/Presenters/templates/@layout.latte *}
+<!doctype html>
+<html lang="cs">
+<head>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>{ifset title}{include title|stripHtml} | {/ifset}Noctis Realms TCG</title>
+
+{block head}
+    <link rel="stylesheet" href="{$basePath}/assets/css/common.css?v={$assetsVer}">
+{/block}
+</head>
+<body>
+
+    {ifset $showRain}
+        <div id="pixel-rain" aria-hidden="true"></div>
+    {/ifset}
+
+	<header class="header">
+  <div class="header-inner container">
+    <div class="brand">
+      <div class="brand-badge" aria-hidden="true"></div>  
+      <h1>Noctis Realms TCG</h1>
+    </div>
+
+    {*! ↓↓↓ NOVÝ WRAPPER VPRAVO ↓↓↓ *}
+    <div class="header-right">
+      {if $user->isLoggedIn()}
+        <div class="currency-pill" aria-label="Moon Dust">
+          <span class="dust-icon" aria-hidden="true">
+            <!-- jednoduchá moonDust ikonka (SVG) -->
+            <svg viewBox="0 0 24 24" width="16" height="16">
+              <path d="M12 2a9 9 0 1 0 9 9c0-.5 0-1-.1-1.5A7 7 0 0 1 12 2Z" fill="currentColor" opacity=".92"/>
+              <circle cx="16" cy="14" r="1.4" fill="currentColor"/>
+              <circle cx="13" cy="17" r="1" fill="currentColor" opacity=".9"/>
+            </svg>
+          </span>
+          <span class="dust-value">{$moonDust ?? 0}</span>
+        </div>
+      {/if}
+
+      <nav class="nav">
+        <a n:href="Home:default" n:class="$presenter->isLinkCurrent('Home:*') ? active">Domů</a>
+        <a class="btn btn-ghost" n:href="Profile:default" n:if="$user->isLoggedIn()">Moje karta</a>
+        <a n:href="Home:logout" n:if="$user->isLoggedIn()">Odhlásit</a>
+      </nav>
+    </div>
+    {*! ↑↑↑ NOVÝ WRAPPER VPRAVO ↑↑↑ *}
+  </div>
+</header>
+
+
+
+	<main class="container">
+		{if $flashes}
+        <div class="flashes-top">
+            {foreach $flashes as $flash}
+                <div class="alert {$flash->type}">
+                    {$flash->message}
+                </div>
+            {/foreach}
+        </div>
+    	{/if}
+
+		{block content}{/block}
+	</main>
+
+	<footer class="footer container">
+		&copy; {=date('Y')} Noctis Realms TCG • <a href="#">Podmínky</a> • <a href="#">Soukromí</a>
+	</footer>
+
+	{ifset $showRain}
+	<script n:syntax="off">
+
+		const rainContainer = document.getElementById('pixel-rain');
+		const colors = ['var(--ignis)', 'var(--vitae)', 'var(--noctis)', 'rgba(255,255,255,0.5)'];
+		const numPixels = 120; // víc = hustší déšť
+		
+		function randomBetween(min, max) { return Math.random() * (max - min) + min; }
+
+		function setupPixel(pixel) {
+			// náhodná barva a velikost (2–4 px)
+			pixel.style.background = colors[(Math.random() * colors.length) | 0];
+			const size = randomBetween(2, 4);
+			pixel.style.width = `${size}px`;
+			pixel.style.height = `${size}px`;
+
+			// náhodná X pozice po celé šířce
+			pixel.style.left = `${Math.random() * 100}vw`;
+
+			// start Y náhodně NAD viewportem (−10 až −110 vh)
+			pixel.style.setProperty('--start', `${-randomBetween(10,110)}vh`)
+
+			// rychlost 6–16 s, zpoždění 0–stejné jako délka (rozbije synchronizaci)
+			const dur = randomBetween(6, 16);
+			pixel.style.setProperty('--dur', `${dur}s`);
+			pixel.style.setProperty('--delay', `${Math.random()*dur}s`);
+		}
+
+		for (let i = 0; i < numPixels; i++) {
+			const p = document.createElement('div');
+			p.className = 'pixel';
+			setupPixel(p);
+
+			// po každém „dopadu“ pixel znovu náhodně nastavíme (plynule bez mezer)
+			p.addEventListener('animationiteration', () => setupPixel(p));
+
+			rainContainer.appendChild(p);
+		}
+	</script>
+	{/ifset}
+
+{block scripts}{/block}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+</html>

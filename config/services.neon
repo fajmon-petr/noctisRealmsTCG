@@ -1,0 +1,16 @@
+services:
+	- App\Core\RouterFactory::createRouter
+	- App\Security\UserAuthenticator
+
+
+	- App\Model\Service\UserService
+	- App\Model\Service\ProfileService
+	- App\Model\Service\LevelingService
+
+search:
+	-	in: %appDir%
+		classes:
+			- *Facade
+			- *Factory
+			- *Repository
+			- *Service

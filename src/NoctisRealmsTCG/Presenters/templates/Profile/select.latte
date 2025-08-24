@@ -1,0 +1,60 @@
+{block head}
+	{include parent}
+	<link rel="stylesheet" href="{$basePath}/assets/css/select.css?v={$assetsVer}">
+{/block}
+
+{block content}
+{form factionForm class => 'form-wide'}
+	{if $form->hasErrors()}
+		<ul class="errors">
+			{foreach $form->errors as $e}<li>{$e}</li>{/foreach}
+		</ul>
+	{/if}
+
+	<div class="name-row mb-5">
+    	{label nickname class => 'name-label'}Jméno{/label}
+    	{input nickname class => 'name-input'}
+	</div>
+
+	<div class="factions-row">
+		<label class="faction-card">
+			{input faction: 'ignis'}
+			<div class="inner ignis">
+				<div class="thumb"></div>
+				<h3>Ignis</h3>
+				<p>Oheň a síla.</p>
+			</div>
+		</label>
+
+		<label class="faction-card">
+			{input faction: 'vitae'}
+			<div class="inner vitae">
+				<div class="thumb"></div>
+				<h3>Vitae</h3>
+				<p>Léčení a růst.</p>
+			</div>
+		</label>
+
+		<label class="faction-card">
+			{input faction: 'noctis'}
+			<div class="inner noctis">
+				<div class="thumb"></div>
+				<h3>Noctis</h3>
+				<p>Temnota a kontrola.</p>
+			</div>
+		</label>
+	</div>
+
+	{input save class => 'btn btn-full', value => 'Vybrat frakci'}
+{/form}
+
+<style>
+/* chybové hlášky z formu */
+:root{
+  --img-ignis: url('{$basePath}/assets/factions/ignis.png');
+  --img-vitae: url('{$basePath}/assets/factions/vitae.png');
+  --img-noctis: url('{$basePath}/assets/factions/noctis.png');
+}
+</style>
+
+{/block}
