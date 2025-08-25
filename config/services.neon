@@ -1,11 +1,13 @@
 services:
 	- App\Core\RouterFactory::createRouter
+
 	- App\Security\UserAuthenticator
 
-
-	- App\Model\Service\UserService
-	- App\Model\Service\ProfileService
 	- App\Model\Service\LevelingService
+
+	- App\Model\Modules\User\UserFacade
+	- App\Model\Modules\Profile\ProfileFacade
+	- App\Model\Modules\Profile\FactionStatsFacade
 
 search:
 	-	in: %appDir%

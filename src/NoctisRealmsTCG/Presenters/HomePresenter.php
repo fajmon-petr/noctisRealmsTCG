@@ -2,20 +2,25 @@
 
 namespace App\Presenters;
 
-use App\Model\Service\UserService;
+use App\Model\Modules\Profile\ProfileFacade;
+use App\Model\Modules\User\UserFacade;
+use Doctrine\ORM\EntityManagerInterface;
 use Nette\Application\UI\Form;
 use Nette\Security\AuthenticationException;
-use App\Model\Service\ProfileService;
 
 final class HomePresenter extends BasePresenter
 {
-    private UserService $userService;
+    private UserFacade $userFacade;
 
-    private ProfileService $profileService;
+    private ProfileFacade $profileFacade;
 
-    public function __construct(UserService $userService, ProfileService $profileService) { 
-        $this->userService = $userService;
-        $this->profileService = $profileService;
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(UserFacade $userFacade, ProfileFacade $profileFacade, EntityManagerInterface $entityManager)
+    {
+        parent::__construct($entityManager);
+        $this->userFacade = $userFacade;
+        $this->profileFacade = $profileFacade;
     }
 
     /** Přihlášení */
@@ -54,7 +59,7 @@ final class HomePresenter extends BasePresenter
         $f->addPassword('password', 'Heslo:')
             ->setRequired()
             ->addRule($f::MinLength, 'Min. 6 znaků', 6);
-        $f->addPassword('password2','Potvrzení hesla')->setRequired()->addRule($f::Equal, 'Hesla se neshodují', $f['password']);
+        $f->addPassword('password2', 'Potvrzení hesla')->setRequired()->addRule($f::Equal, 'Hesla se neshodují', $f['password']);
         $f->addProtection();
         $f->addSubmit('send', 'Registrovat');
         $f->onSuccess[] = [$this, 'registerFormSucceeded'];
@@ -63,15 +68,15 @@ final class HomePresenter extends BasePresenter
 
     public function registerFormSucceeded(Form $form, \stdClass $v): void
     {
-        if ($this->userService->findByEmail($v->email)) {
+        if ($this->userFacade->findByEmail($v->email)) {
             $form->addError('E-mail už existuje.');
             return;
         }
 
-        $userEntity = $this->userService->register($v->email, $v->password);
+        $userEntity = $this->userFacade->register($v->email, $v->password);
         $this->getUser()->login($v->email, $v->password);
 
-        $this->profileService->getOrCreateForUser($userEntity);
+        $this->profileFacade->getOrCreateForUser($userEntity);
 
         $this->flashMessage('Úspěšná registrace. Vyber si frakci.', 'success');
         $this->redirect('Profile:select');
@@ -89,8 +94,21 @@ final class HomePresenter extends BasePresenter
         $this->template->showRain = true;
 
         $this->template->news = [
-            ['title' => 'Balíčky Noctis 0.1', 'text' => 'První testovací edice je na cestě.'],
-            ['title' => 'Výběr frakce', 'text' => 'Ignis • Vitae • Noctis — už brzy.'],
+            // === FRACE ===
+            ['title' => 'Tab „Frakce“ na profilu', 'text' => 'Základní info o zvolené frakci + mini žebříček.', 'status' => 'todo'],
+            ['title' => 'Stránka Frakce', 'text' => 'Detail frakce: žebříček hráčů, level frakce, počet hráčů, popis.', 'status' => 'todo'],
+            ['title' => 'Darování karet', 'text' => 'Mechanika pro poslání karty jinému hráči (ověření, poplatek v Moon Dust).', 'status' => 'idea'],
+
+            // === TECH ===
+            ['title' => 'Integrace Vite + React', 'text' => 'Zavést Vite (TS/React) jako ostrůvky do Latte.', 'status' => 'todo'],
+
+            // === SHOP & PACKS ===
+            ['title' => 'Obchod', 'text' => 'UI pro nákup Moon Dust balíčků (cena, potvrzení, odečet MD).', 'status' => 'todo'],
+            ['title' => 'Otevírání balíčků (React)', 'text' => 'React komponenta + API endpoint, animace otevření a výpis karet.', 'status' => 'todo'],
+
+            // === EDICE ===
+            ['title' => 'Balíčky „Noctis Alpha“', 'text' => 'První testovací edice – definovat rarity a drop šance.', 'status' => 'in-progress'],
         ];
     }
+
 }

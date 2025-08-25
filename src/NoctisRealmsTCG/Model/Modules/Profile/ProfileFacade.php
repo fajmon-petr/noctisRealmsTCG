@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace App\Model\Service;
+namespace App\Model\Modules\Profile;
 
 use App\Model\Entity\Profile;
 use App\Model\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 
-class ProfileService
+class ProfileFacade
 {
     public function __construct(private EntityManagerInterface $em) {}
 

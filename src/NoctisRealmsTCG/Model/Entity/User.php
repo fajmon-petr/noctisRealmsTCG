@@ -9,6 +9,7 @@ use App\Utils\MagicAccessors;
  * @property-read int|null $id
  * @property string $email
  * @property string $password
+ * @property Role|null $role
  */
 #[ORM\Entity]
 #[ORM\Table(name: "users")]
@@ -26,6 +27,10 @@ class User
 
     #[ORM\Column(type: "string")]
     private string $password;
+
+    #[ORM\ManyToOne(targetEntity: Role::class)]
+    #[ORM\JoinColumn(name: "role_id", referencedColumnName: "id", nullable: false, onDelete: "RESTRICT")]
+    private ?Role $role = null;
 
     public function getId(): ?int
     {
@@ -50,5 +55,14 @@ class User
     public function setPassword(string $password): void
     {
         $this->password = $password;
+    }
+
+    public function getRole(): ?Role
+    {
+        return $this->role;
+    }
+    public function setRole(Role $role): void
+    {
+        $this->role = $role;
     }
 }

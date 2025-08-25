@@ -1,65 +1,80 @@
 {block content}
 {if !$user->isLoggedIn()}
-	<h1>Vítej v Noctis Realms TCG</h1>
-	<p>Přihlas se, nebo si hned vedle vytvoř účet.</p>
+<h1>Vítej v Noctis Realms TCG</h1>
+<p>Přihlas se, nebo si hned vedle vytvoř účet.</p>
 
-	<div class="auth-grid">
-		<div class="card">
-			<h2>Přihlášení</h2>
-			{form signInForm}
-				{if $form->hasErrors()}
-					<ul class="errors">
-						{foreach $form->errors as $e}<li>{$e}</li>{/foreach}
-					</ul>
-				{/if}
-				<label>E-mail</label>
-				{input email}
-				<label>Heslo</label>
-				{input password}
-				{input send class => "btn"}
-			{/form}
-		</div>
-
-		<div class="card">
-			<h2>Registrace</h2>
-			{form registerForm}
-				{if $form->hasErrors()}
-					<ul class="errors">
-						{foreach $form->errors as $e}<li>{$e}</li>{/foreach}
-					</ul>
-				{/if}
-				<label>E-mail</label>
-				{input email}
-				<label>Heslo</label>
-				{input password}
-				<label>Potvrzení hesla</label>
-				{input password2}
-				{input send class => "btn"}
-			{/form}
-		</div>
+<div class="auth-grid">
+	<div class="card">
+		<h2>Přihlášení</h2>
+		{form signInForm}
+		{if $form->hasErrors()}
+		<ul class="errors">
+			{foreach $form->errors as $e}<li>{$e}</li>{/foreach}
+		</ul>
+		{/if}
+		<label>E-mail</label>
+		{input email}
+		<label>Heslo</label>
+		{input password}
+		{input send class => "btn"}
+		{/form}
 	</div>
+
+	<div class="card">
+		<h2>Registrace</h2>
+		{form registerForm}
+		{if $form->hasErrors()}
+		<ul class="errors">
+			{foreach $form->errors as $e}<li>{$e}</li>{/foreach}
+		</ul>
+		{/if}
+		<label>E-mail</label>
+		{input email}
+		<label>Heslo</label>
+		{input password}
+		<label>Potvrzení hesla</label>
+		{input password2}
+		{input send class => "btn"}
+		{/form}
+	</div>
+</div>
 {else}
-	<h1>Vítej zpět 👋</h1>
-	<p>Pokračuj na <a class="btn btn-ghost" n:href="Profile:default">Můj profil</a>.</p>
+<h1>Vítej zpět 👋</h1>
+<p>Pokračuj na <a class="btn btn-ghost" n:href="Profile:default">Můj profil</a>.</p>
 {/if}
 
 <h2 style="margin-top:1.5rem">Novinky</h2>
 <div class="card">
-	<ul>
+	<ul class="list-unstyled">
 		{foreach $news as $n}
-			<li><b>{$n['title']}</b> — {$n['text']}</li>
+		<li class="mb-2">
+			<strong>{$n['title']}</strong>
+			<span n:class="badge,
+					$n['status']==='todo' ? 'bg-secondary',
+                    $n['status']==='in-progress' ? 'bg-warning',
+                    $n['status']==='done' ? 'bg-success',
+                    $n['status']==='idea' ? 'bg-info'">{$n['status']}</span>
+			<div class="text-muted">{$n['text']}</div>
+		</li>
 		{/foreach}
 	</ul>
 </div>
 
 <style n:syntax="off">
-.auth-grid{
-	display:grid;
-	grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
-	gap:20px;
-	margin:16px 0 8px;
-}
-.card h2{ margin-top:0; }
-.errors{ color:#ffb3b3; margin:8px 0; }
+	.auth-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		gap: 20px;
+		margin: 16px 0 8px;
+	}
+
+	.card h2 {
+		margin-top: 0;
+	}
+
+	.errors {
+		color: #ffb3b3;
+		margin: 8px 0;
+	}
 </style>
 {/block}

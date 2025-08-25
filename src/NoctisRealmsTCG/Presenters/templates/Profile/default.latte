@@ -1,6 +1,6 @@
 {block head}
-    {include parent}
-    <link rel="stylesheet" href="{$basePath}/assets/css/profile.css?v={$assetsVer}">
+{include parent}
+<link rel="stylesheet" href="{$basePath}/assets/css/profile.css?v={$assetsVer}">
 {/block}
 
 {block content}
@@ -14,14 +14,23 @@
 
 <div class="container py-4">
   <ul class="nav nav-pills nr-tabs gap-2 mb-3" role="tablist">
-    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tabProfile" role="tab">Profil</a></li>
-    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabFaction" role="tab">Frakce</a></li>
-    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabAchievements" role="tab">Úspěchy</a></li>
+    <li class="nav-item">
+      <a n:class="nav-link, ($presenter->tab === 'profile') ? 'active'" data-bs-toggle="tab" href="#tabProfile"
+        role="tab">Profil</a>
+    </li>
+    <li class="nav-item">
+      <a n:class="nav-link, ($presenter->tab === 'faction') ? 'active'" data-bs-toggle="tab" href="#tabFaction"
+        role="tab">Frakce</a>
+    </li>
+    <li class="nav-item">
+      <a n:class="nav-link, ($presenter->tab === 'ach') ? 'active'" data-bs-toggle="tab" href="#tabAchievements"
+        role="tab">Úspěchy</a>
+    </li>
   </ul>
 
   <div class="tab-content">
-    <!-- TAB 1 -->
-    <div class="tab-pane fade show active" id="tabProfile" role="tabpanel">
+    <!-- TAB 1 Profil -->
+    <div n:class="tab-pane, fade, ($presenter->tab === 'profile') ? 'show active'" id="tabProfile" role="tabpanel">
       <div class="nr-glass p-3 p-md-4 rounded-4 mb-3">
         <div class="row g-4">
           <div class="col-12 col-lg-4">
@@ -33,7 +42,8 @@
                 </div>
                 <div>
                   <div class="nr-title mb-1">{$profile?->nickname ?? 'Jméno'}</div>
-                  <div class="text-muted small">{if $email}<a class="nr-link" href="mailto:{$email}">{$email}</a>{else}—{/if}</div>
+                  <div class="text-muted small">{if $email}<a class="nr-link"
+                      href="mailto:{$email}">{$email}</a>{else}—{/if}</div>
                 </div>
               </div>
               <div class="d-grid gap-2 mt-4">
@@ -45,18 +55,40 @@
 
           <div class="col-12 col-lg-8">
             <div class="nr-grid">
-              <div class="nr-field"><div class="nr-label">Jméno</div><div class="nr-box">{$profile?->nickname ?? '—'}</div></div>
-              <div class="nr-field"><div class="nr-label">Email</div><div class="nr-box">{if $email}<a class="nr-link" href="mailto:{$email}">{$email}</a>{else}—{/if}</div></div>
-              <div class="nr-field"><div class="nr-label">Frakce</div>
+              <div class="nr-field">
+                <div class="nr-label">Jméno</div>
+                <div class="nr-box">{$profile?->nickname ?? '—'}</div>
+              </div>
+              <div class="nr-field">
+                <div class="nr-label">Email</div>
+                <div class="nr-box">{if $email}<a class="nr-link" href="mailto:{$email}">{$email}</a>{else}—{/if}</div>
+              </div>
+              <div class="nr-field">
+                <div class="nr-label">Frakce</div>
                 <div class="nr-box d-flex align-items-center gap-2">
                   <span class="nr-dot" style="background: {$profile?->faction?->color ?? '#6a1b9a'}"></span>
                   <span>{$profile?->faction?->name ?? '—'}</span>
                 </div>
               </div>
 
-              <div class="nr-stat"><div class="nr-box"><div class="nr-stat-label">Počet karet</div><div class="nr-stat-value">{$profile?->cards ?? 0}</div></div></div>
-              <div class="nr-stat"><div class="nr-box"><div class="nr-stat-label">Otevřené balíčky</div><div class="nr-stat-value">{$profile?->openedPacks ?? 0}</div></div></div>
-              <div class="nr-stat"><div class="nr-box"><div class="nr-stat-label">Achievementy</div><div class="nr-stat-value">{$profile?->achievements ?? 0}</div></div></div>
+              <div class="nr-stat">
+                <div class="nr-box">
+                  <div class="nr-stat-label">Počet karet</div>
+                  <div class="nr-stat-value">{$profile?->cards ?? 0}</div>
+                </div>
+              </div>
+              <div class="nr-stat">
+                <div class="nr-box">
+                  <div class="nr-stat-label">Otevřené balíčky</div>
+                  <div class="nr-stat-value">{$profile?->openedPacks ?? 0}</div>
+                </div>
+              </div>
+              <div class="nr-stat">
+                <div class="nr-box">
+                  <div class="nr-stat-label">Achievementy</div>
+                  <div class="nr-stat-value">{$profile?->achievements ?? 0}</div>
+                </div>
+              </div>
 
               <div class="nr-full">
                 <div class="d-flex justify-content-between align-items-center">
@@ -64,15 +96,16 @@
                   <div class="text-muted small">{$xp} / {$xpToNext} XP</div>
                 </div>
                 <div class="nr-progress" style="--pct: {$xpPct}%;">
-                  <div class="nr-progress-bar" role="progressbar" aria-valuenow="{$xpPct}" aria-valuemin="0" aria-valuemax="100"></div>
+                  <div class="nr-progress-bar" role="progressbar" aria-valuenow="{$xpPct}" aria-valuemin="0"
+                    aria-valuemax="100"></div>
                 </div>
               </div>
 
               {if $profile?->faction?->description}
-                <div class="nr-full">
-                  <div class="nr-label">Popis frakce</div>
-                  <div class="nr-box">{$profile->faction->description}</div>
-                </div>
+              <div class="nr-full">
+                <div class="nr-label">Popis frakce</div>
+                <div class="nr-box">{$profile->faction->description}</div>
+              </div>
               {/if}
 
               <div class="nr-actions nr-full">
@@ -87,29 +120,107 @@
       </div>
     </div>
 
-    <!-- TAB 2 (placeholder) -->
-    <div class="tab-pane fade" id="tabFaction" role="tabpanel">
-      <div class="nr-glass p-3 p-md-4 rounded-4">
-        <div class="nr-title mb-3">Frakce</div>
-        <div class="nr-grid">
-          <div class="nr-field"><div class="nr-label">Název</div><div class="nr-box">{$profile?->faction?->name ?? '—'}</div></div>
-          <div class="nr-field"><div class="nr-label">Barva</div><div class="nr-box d-flex align-items-center gap-2"><span class="nr-dot" style="background: {$profile?->faction?->color ?? '#6a1b9a'}"></span><span>{$profile?->faction?->color ?? '—'}</span></div></div>
-          <div class="nr-full"><div class="nr-label">Popis</div><div class="nr-box">{$profile?->faction?->description ?? '—'}</div></div>
+    <!-- TAB 2 Frakce -->
+    <div n:class="tab-pane, fade, ($presenter->tab === 'faction') ? 'show active'" id="tabFaction" role="tabpanel">
+      <div class="nr-faction-tab">
+
+        <div class="nr-faction-header">
+          <div class="nr-faction-brand">
+            <div class="nr-faction-badge"
+              style="background-image:url('{$basePath}/assets/factions/{$profile->faction->slug}.png')"></div>
+            <div>
+              <div class="nr-faction-name">{$profile->faction->name}</div>
+              <div class="nr-faction-sub">Moje příspěvky v sezóně</div>
+            </div>
+          </div>
+
+          <div class="nr-season-filter">
+            <label for="seasonSel" class="nr-label">Sezóna</label>
+            <select id="seasonSel" class="nr-select" data-base-url="{link this, season => null, tab => 'faction'}"
+              onchange="
+                const base = this.dataset.baseUrl;
+                const v = this.value.trim();
+                const sep = base.includes('?') ? '&' : '?';
+                location.href = v === '' ? base : (base + sep + 'season=' + encodeURIComponent(parseInt(v,10)));
+              ">
+
+              <option value="" n:attr="selected => !$presenter->season">Lifetime</option>
+              {foreach $seasons as $s}
+              <option value="{$s->id}" n:attr="selected => ($presenter->season === $s->id)">{$s->name}</option>
+              {/foreach}
+            </select>
+          </div>
+
+          <div class="nr-total-pill">
+            <div class="nr-total-label">Body celkem</div>
+            <div class="nr-total-value">{$f['points']}</div>
+          </div>
+        </div>
+
+        <div class="cards-row cards-row--top">
+          <div class="rarity-card common light" style="--crop:12px">
+            <img class="rc-img" src="{$basePath}/assets/cards/common.png" alt="Common">
+            <div class="rc-value">{$f['common']}</div>
+          </div>
+          <div class="rarity-card uncommon light" style="--crop:12px">
+            <img class="rc-img" src="{$basePath}/assets/cards/uncommon.png" alt="Uncommon">
+            <div class="rc-value">{$f['uncommon']}</div>
+          </div>
+          <div class="rarity-card rare dark" style="--crop:12px">
+            <img class="rc-img" src="{$basePath}/assets/cards/rare.png" alt="Rare">
+            <div class="rc-value">{$f['rare']}</div>
+          </div>
+        </div>
+
+        <div class="cards-row cards-row--bottom">
+          <div class="rarity-card epic dark" style="--crop:12px">
+            <img class="rc-img" src="{$basePath}/assets/cards/epic.png" alt="Epic">
+            <div class="rc-value">{$f['epic']}</div>
+          </div>
+          <div class="rarity-card legendary dark" style="--crop:12px">
+            <img class="rc-img" src="{$basePath}/assets/cards/legendary.png" alt="Legendary">
+            <div class="rc-value">{$f['legendary']}</div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- TAB 3 (placeholder) -->
-    <div class="tab-pane fade" id="tabAchievements" role="tabpanel">
+    <div n:class="tab-pane, fade, ($presenter->tab === 'ach') ? 'show active'" id="tabAchievements" role="tabpanel">
       <div class="nr-glass p-3 p-md-4 rounded-4">
         <div class="nr-title mb-3">Úspěchy & Karty</div>
         <div class="nr-grid">
-          <div class="nr-stat"><div class="nr-box"><div class="nr-stat-label">Achievementy</div><div class="nr-stat-value">{$profile?->achievements ?? 0}</div></div></div>
-          <div class="nr-stat"><div class="nr-box"><div class="nr-stat-label">Karty celkem</div><div class="nr-stat-value">{$profile?->cards ?? 0}</div></div></div>
-          <div class="nr-full"><div class="nr-label">Seznam (WIP)</div><div class="nr-box">Sem pak hodíme výpis karet a odznaků…</div></div>
+          <div class="nr-stat">
+            <div class="nr-box">
+              <div class="nr-stat-label">Achievementy</div>
+              <div class="nr-stat-value">{$profile?->achievements ?? 0}</div>
+            </div>
+          </div>
+          <div class="nr-stat">
+            <div class="nr-box">
+              <div class="nr-stat-label">Karty celkem</div>
+              <div class="nr-stat-value">{$profile?->cards ?? 0}</div>
+            </div>
+          </div>
+          <div class="nr-full">
+            <div class="nr-label">Seznam (WIP)</div>
+            <div class="nr-box">Sem pak hodíme výpis karet a odznaků…</div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+
+
+<style>
+  :root {
+    --img-common: url('{$basePath}/assets/cards/common.png');
+    --img-uncommon: url('{$basePath}/assets/cards/uncommon.png');
+    --img-rare: url('{$basePath}/assets/cards/rare.png');
+    --img-epic: url('{$basePath}/assets/cards/epic.png');
+    --img-legendary: url('{$basePath}/assets/cards/legendary.png');
+  }
+</style>
 {/block}

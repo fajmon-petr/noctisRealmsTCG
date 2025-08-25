@@ -30,8 +30,13 @@
 	},
 	"require-dev": {
 		"nette/tester": "^2.5",
-		"phpstan/phpstan-nette": "^2",
-		"symfony/thanks": "^1"
+		"phpstan/phpstan-nette": "*",
+		"symfony/thanks": "^1",
+		"phpstan/phpstan": "*",
+		"phpstan/extension-installer": "*",
+		"phpstan/phpstan-doctrine": "*",
+		"phpstan/phpstan-strict-rules": "*",
+		"phpstan/phpstan-deprecation-rules": "*"
 	},
 	"autoload": {
 		"psr-4": {

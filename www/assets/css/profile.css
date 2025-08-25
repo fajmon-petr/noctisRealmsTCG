@@ -37,3 +37,117 @@
 .nr-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
 .nr-chip{background:rgba(140,87,255,.22);border:1px solid rgba(140,87,255,.35)}
 .nr-chip:hover{background:rgba(140,87,255,.35)}
+
+/* === Faction Tab === */
+.nr-faction-tab{ display:grid; gap:16px; }
+
+/* Header: badge + sezóna + total */
+.nr-faction-header{
+  display:grid;
+  grid-template-columns: 1fr auto auto;
+  gap:16px; align-items:center;
+}
+@media (max-width: 720px){
+  .nr-faction-header{ grid-template-columns: 1fr; gap:12px; }
+}
+
+.nr-faction-brand{ display:flex; align-items:center; gap:12px; }
+.nr-faction-badge{
+  width:48px; height:48px; border-radius:12px;
+  background-size:cover; background-position:center;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
+}
+.nr-faction-name{ font-weight:700; letter-spacing:.3px; }
+.nr-faction-sub{ font-size:12px; color:#aeb1c3; }
+
+.nr-season-filter{ display:flex; flex-direction:column; gap:6px; }
+.nr-label{ font-size:12px; color:#cfd0de; }
+.nr-select{
+  appearance:none; background:#11131a; color:#fff;
+  border:1px solid rgba(255,255,255,.12); border-radius:10px;
+  padding:8px 10px; min-width:180px;
+}
+
+/* Total body – kruh/rámeček v akcentu */
+.nr-total-pill{
+  justify-self:end;
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  padding:10px 14px; border-radius:14px;
+  border:2px solid color-mix(in oklab, var(--accent) 75%, white 5%);
+  box-shadow:0 0 18px color-mix(in oklab, var(--accent) 28%, transparent);
+}
+.nr-total-label{ font-size:12px; color:#d6d6e5; }
+.nr-total-value{ font-size:22px; font-weight:800; }
+
+/* === Rarity cards as real card faces === */
+:root { --card-w: clamp(180px, 22vw, 260px); }
+
+/* Mřížka 3 nahoře / 2 dole */
+.nr-rarity-grid { display: grid; gap: 24px; }
+.cards-row { display: grid; gap: 20px; justify-content: center; }
+.cards-row--top    { grid-template-columns: repeat(3, var(--card-w)); }
+.cards-row--bottom { grid-template-columns: repeat(2, var(--card-w)); }
+@media (max-width: 900px){
+  .cards-row--top    { grid-template-columns: repeat(3, clamp(160px, 26vw, 220px)); }
+  .cards-row--bottom { grid-template-columns: repeat(2, clamp(160px, 26vw, 220px)); }
+}
+@media (max-width: 640px){
+  .cards-row--top    { grid-template-columns: repeat(2, clamp(160px, 42vw, 220px)); }
+  .cards-row--bottom { grid-template-columns: 1fr; }
+}
+
+/* Karta = čistý obrázek bez efektů */
+.rarity-card { position: relative; width: var(--card-w); }
+.rc-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  /* žádné stíny, rámečky, overlaye – přesný vzhled souboru */
+}
+
+/* Velké číslo dole uprostřed */
+.rc-value{
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  transform: translateX(-50%);
+  font: 900 clamp(26px, 5.5vw, 54px)/1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: #ffffff;
+  text-shadow: 0 0 6px rgba(0,0,0,.55); /* pokud chceš úplně „bez efektu“, klidně tuhle řádku smaž */
+}
+
+/* Světlé karty – číslo tmavší, světlo invertujeme */
+.rarity-card.light .rc-value{
+  --num-fill:#3e3e3e;           /* podobné barvě popisků na common/uncommon */
+  --num-shadow:#ffffffb3;
+  --num-highlight:#00000055;
+  -webkit-text-stroke:1px rgba(255,255,255,.25);
+}
+
+/* Emboss čísla + posun výš */
+.rc-value{
+  position:absolute; left:50%; bottom:12%; transform:translateX(-50%);
+  font-family:"Cinzel", ui-serif, Georgia, "Times New Roman", serif;
+  font-weight:800; letter-spacing:.02em;
+  font-size:clamp(30px,6.4vw,56px); line-height:1;
+
+  /* výchozí barvy (pro tmavé karty) */
+  --num-fill:#f4efe6;
+  --num-shadow:#00000099;   /* tmavý stín */
+  --num-highlight:#ffffff66;/* světlo */
+
+  color:var(--num-fill);
+  -webkit-text-stroke:1px rgba(0,0,0,.25);
+
+  /* emboss/inset efekt (tmavé karty = světlý text s tmavým stínem nahoru-vlevo) */
+  text-shadow:
+    -1px -1px 0 var(--num-shadow),
+     1px  1px 0 var(--num-highlight),
+     0  2px 6px #0006;
+}
+
+.rarity-card.common    .rc-value{ --num-fill:#72736F; }
+.rarity-card.uncommon  .rc-value{ --num-fill:#D7D3CE; }
+.rarity-card.rare      .rc-value{ --num-fill:#27475B; }
+.rarity-card.epic      .rc-value{ --num-fill:#62436D; }
+.rarity-card.legendary .rc-value{ --num-fill:#B47613; }
