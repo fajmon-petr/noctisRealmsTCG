@@ -3,12 +3,13 @@ namespace App\Model\Entity;
 
 use App\Utils\MagicAccessors;
 use Doctrine\ORM\Mapping as ORM;
+use App\Model\Entity\Faction;
 
 #[ORM\Entity]
-#[ORM\Table(name: "player_faction_stats",
+#[ORM\Table(name: "player_season_stats",
     uniqueConstraints: [new ORM\UniqueConstraint(name: "uniq_profile_faction_season", columns: ["profile_id", "faction_id", "season_id"])]
 )]
-class PlayerFactionStats
+class PlayerSeasonStats
 {
     use MagicAccessors;
 
@@ -32,6 +33,9 @@ class PlayerFactionStats
 
     #[ORM\Column(name: "points_total", type: "integer", options: ["unsigned" => true])]
     private int $pointsTotal = 0;
+
+    #[ORM\Column(name: "final_rank", type: "integer", options: ["unsigned" => true])]
+    private ?int $finalRank = null;
 
     #[ORM\Column(type: "integer", options: ["unsigned" => true])]
     private int $common = 0;
@@ -58,7 +62,12 @@ class PlayerFactionStats
         $this->profile = $profile;
     }
 
-    public function setFaction(Faction $faction)
+    public function getFaction(): Faction
+    {
+        return $this->faction;
+    }
+
+    public function setFaction(Faction $faction): void
     {
         $this->setFaction = $faction;
     }
@@ -70,11 +79,6 @@ class PlayerFactionStats
     public function setSeason(?Season $season): void
     {
         $this->season = $season;
-    }
-
-    public function getFaction()
-    {
-        return $this->getFaction;
     }
 
     public function getSeasonId(): int
@@ -95,6 +99,16 @@ class PlayerFactionStats
     public function setPointsTotal($pointsTotal): void
     {
         $this->pointsTotal = $pointsTotal;
+    }
+
+    public function getFinalRank(): ?int
+    {
+        return $this->finalRank;
+    }
+
+    public function setFinalRank($finalRank): void
+    {
+        $this->finalRank = $finalRank;
     }
 
     public function getCommon(): int

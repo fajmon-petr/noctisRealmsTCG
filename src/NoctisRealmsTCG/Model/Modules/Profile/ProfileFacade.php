@@ -2,13 +2,18 @@
 
 namespace App\Model\Modules\Profile;
 
+use App\Model\Entity\PlayerSeasonStats;
 use App\Model\Entity\Profile;
+use App\Model\Entity\Season;
 use App\Model\Entity\User;
+use Doctrine\Migrations\Exception\PlanAlreadyExecuted;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ProfileFacade
 {
-    public function __construct(private EntityManagerInterface $em) {}
+    public function __construct(private EntityManagerInterface $em)
+    {
+    }
 
     public function getOrCreateForUser(User $user): Profile
     {
@@ -39,7 +44,7 @@ class ProfileFacade
         $p->setFaction($faction);
 
         $this->em->flush();
-        
+
         return $p;
     }
 }

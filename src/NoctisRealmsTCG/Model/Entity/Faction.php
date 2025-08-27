@@ -37,6 +37,9 @@ class Faction
     #[ORM\Column(type: "text", nullable: true)]
     private ?string $description = null;
 
+    #[ORM\Column(type:"text", nullable: true)]
+    private ?string $emblem = null;
+
     #[ORM\Column(type: "integer")]
     private int $playersCount = 0;
 
@@ -72,6 +75,13 @@ class Faction
         return $this->description;
     }
     public function setDescription(?string $d): void { 
+        $this->description = $d; 
+    }
+
+    public function getEmblem(): ?string { 
+        return $this->description;
+    }
+    public function setEmblem(?string $d): void { 
         $this->description = $d; 
     }
 

@@ -1,0 +1,1 @@
+RENAME TABLE player_faction_stats TO playes_season_stats;

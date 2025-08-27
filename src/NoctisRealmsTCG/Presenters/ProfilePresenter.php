@@ -2,17 +2,20 @@
 
 namespace App\Presenters;
 
-use App\Model\Entity\PlayerFactionStats;
+use App\Model\Entity\PlayerSeasonStats;
 use App\Model\Entity\Profile;
 use App\Model\Entity\Season;
 use App\Model\Entity\User;
 use App\Model\Modules\Profile\ProfileFacade;
+use App\Model\Modules\Profile\SeasonStatsFacade;
 use App\Model\Service\LevelingService;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class ProfilePresenter extends BasePresenter
 {
     private ProfileFacade $profileFacade;
+
+    private SeasonStatsFacade $seasonStatsFacade;
 
     private LevelingService $levelingService;
 
@@ -24,11 +27,12 @@ final class ProfilePresenter extends BasePresenter
     /** @persistent */
     public string $tab = 'profile';
 
-    public function __construct(ProfileFacade $profileFacade, LevelingService $levelingService, EntityManagerInterface $entityManager)
+    public function __construct(ProfileFacade $profileFacade, LevelingService $levelingService, SeasonStatsFacade $seasonStatsFacade, EntityManagerInterface $entityManager)
     {
         parent::__construct($entityManager);
         $this->profileFacade = $profileFacade;
         $this->levelingService = $levelingService;
+        $this->seasonStatsFacade = $seasonStatsFacade;
     }
 
     protected function createComponentFactionForm(): \Nette\Application\UI\Form
@@ -138,38 +142,68 @@ final class ProfilePresenter extends BasePresenter
         $need = $this->levelingService->thresholdFor($profile->getLevel());
         $xpPct = $this->levelingService->percent($profile);
 
+        $slug = $profile?->faction?->slug ?? 'noctis';
+
+        $avatarPath = $profile->getAvatar()
+            ? '/uploads/avatars/' . ltrim((string) $profile->getAvatar(), '/')
+            : '/assets/avatars/avatar-' . $slug . '.png';
+
         $this->template->profile = $profile;
         $this->template->xpToNext = $need;
         $this->template->xp = $profile->getXp();
         $this->template->level = $profile->getLevel();
         $this->template->xpPct = $xpPct;
+        $this->template->avatarPath = $avatarPath;
     }
 
     /** Tab „Frakce“: sezóny, moje stats v sezóně/lifetime, leaderboard */
     private function composeFactionTab(Profile $profile, ?int $seasonId): void
     {
-        // seznam sezón (pro select)
-        $seasons = $this->em->getRepository(Season::class)
-            ->findBy([], ['startAt' => 'DESC']);
+        $rows = $this->seasonStatsFacade->allSeasonsWithMyStats($profile);
 
-        // moje stats (lifetime nebo vybraná sezóna)
-        $crit = [
-            'profile' => $profile,
-            'season' => $seasonId ? $this->em->getRepository(Season::class)->find($seasonId) : null,
+        if ($seasonId === null) {
+            $seasonId = $this->em->getRepository(Season::class)->findOneBy(['endAt' => null])->id;
+        }
+
+        // seznam pro <select>
+        $this->template->seasons = array_map(
+            fn(array $r) => (object) ['id' => (int) $r['seasonId'], 'name' => $r['seasonName']],
+            $rows
+        );
+
+        // zvolená sezóna = persistent ? první řádek
+        $effectiveSeasonId = $this->season ?: ($rows[0]['seasonId'] ?? null);
+        $this->template->season = $effectiveSeasonId;
+
+        // najdi řádek vybrané sezóny (nebo první jako fallback)
+        $current = $rows[0] ?? null;
+        foreach ($rows as $r) {
+            if ((int) $r['seasonId'] === (int) $effectiveSeasonId) {
+                $current = $r;
+                break;
+            }
+        }
+
+        $this->template->seasonFactionSlug = $current['factionSlug'];
+        bdump($current['finalRank']);
+        // frakce pro styling headeru (bez dalšího dotazu)
+        $this->template->seasonFaction = (object) [
+            'name' => $current['factionName'] ?? null,
+            'slug' => $current['factionSlug'] ?? null,
+            'color' => $current['factionColor'] ?? '#6A1B9A',
+            'rank' => $current['finalRank'] ?? $this->seasonStatsFacade->getLiveRank($profile->id, $seasonId),
+            'start' => $current['startAt'] ? $current['startAt']->format('d. m. Y') : null,
+            'end' => $current['endAt'] ? $current['endAt']->format('d. m. Y') : 'současnost',
         ];
-        /** @var PlayerFactionStats|null $stats */
-        $stats = $this->em->getRepository(PlayerFactionStats::class)->findOneBy($crit);
 
-        // do šablony:
-        $this->template->seasons = $seasons;
-        $this->template->seasonId = $seasonId;
+        // čísla pro karty
         $this->template->f = [
-            'points' => $stats?->getPointsTotal() ?? 0,
-            'common' => $stats?->getCommon() ?? 0,
-            'uncommon' => $stats?->getUncommon() ?? 0,
-            'rare' => $stats?->getRare() ?? 0,
-            'epic' => $stats?->getEpic() ?? 0,
-            'legendary' => $stats?->getLegendary() ?? 0,
+            'points' => (int) ($current['points'] ?? 0),
+            'common' => (int) ($current['common'] ?? 0),
+            'uncommon' => (int) ($current['uncommon'] ?? 0),
+            'rare' => (int) ($current['rare'] ?? 0),
+            'epic' => (int) ($current['epic'] ?? 0),
+            'legendary' => (int) ($current['legendary'] ?? 0),
         ];
     }
 

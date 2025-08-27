@@ -16,6 +16,7 @@ use App\Utils\MagicAccessors;
  * @property int $level
  * @property int $xp
  * @property int $moonDust
+ * @property string|null $avatar
  */
 #[ORM\Entity]
 #[ORM\Table(name: "profiles")]
@@ -57,73 +58,107 @@ class Profile
     #[ORM\Column(name: "moon_dust", type: "integer", options: ["unsigned" => true])]
     private int $moonDust = 0;
 
-    public function getId(): int { 
-        return $this->id; 
+    #[ORM\Column(type: "string", length: 64, nullable: true)]
+    private ?string $avatar = null;
+
+
+    public function getId(): int
+    {
+        return $this->id;
     }
 
-    public function getUser(): User { 
-        return $this->user; 
+    public function getUser(): User
+    {
+        return $this->user;
     }
-    public function setUser(User $user): void { 
-        $this->user = $user; 
-    }
-
-    public function getNickname(): ?string { 
-        return $this->nickname; 
-    }
-    public function setNickname(?string $nickname): void { 
-        $this->nickname = $nickname; 
+    public function setUser(User $user): void
+    {
+        $this->user = $user;
     }
 
-    public function getFaction(): ?Faction { 
-        return $this->faction; 
+    public function getNickname(): ?string
+    {
+        return $this->nickname;
     }
-    public function setFaction(?Faction $f): void { 
-        $this->faction = $f; 
-    }
-
-    public function getCards(): int { 
-        return $this->cards; 
-    }
-    public function setCards(int $n): void { 
-        $this->cards = $n; 
+    public function setNickname(?string $nickname): void
+    {
+        $this->nickname = $nickname;
     }
 
-    public function getOpenedPacks(): int { 
-        return $this->openedPacks; 
+    public function getFaction(): ?Faction
+    {
+        return $this->faction;
     }
-    public function setOpenedPacks(int $n): void { 
-        $this->openedPacks = $n; 
-    }
-
-    public function getAchievements(): int { 
-        return $this->achievements; 
-    }
-    public function setAchievements(int $n): void { 
-        $this->achievements = $n; 
+    public function setFaction(?Faction $f): void
+    {
+        $this->faction = $f;
     }
 
-    public function getLevel(): int { 
-        return $this->level; 
+    public function getCards(): int
+    {
+        return $this->cards;
     }
-    public function setLevel(int $l): void { 
-        $this->level = max(1, $l); 
-    }
-
-    public function getXp(): int { 
-        return $this->xp; 
-    }
-    public function setXp(int $x): void { 
-        $this->xp = max(0, $x); 
+    public function setCards(int $n): void
+    {
+        $this->cards = $n;
     }
 
-    public function getMoonDust(): int { 
-        return $this->moonDust; 
+    public function getOpenedPacks(): int
+    {
+        return $this->openedPacks;
     }
-    public function setMoonDust(int $md): void { 
-        $this->moonDust = max(0, $md); 
+    public function setOpenedPacks(int $n): void
+    {
+        $this->openedPacks = $n;
     }
-    public function addMoonDust(int $md): void { 
-        $this->moonDust = max(0, $this->moonDust + $md); 
+
+    public function getAchievements(): int
+    {
+        return $this->achievements;
+    }
+    public function setAchievements(int $n): void
+    {
+        $this->achievements = $n;
+    }
+
+    public function getLevel(): int
+    {
+        return $this->level;
+    }
+    public function setLevel(int $l): void
+    {
+        $this->level = max(1, $l);
+    }
+
+    public function getXp(): int
+    {
+        return $this->xp;
+    }
+    public function setXp(int $x): void
+    {
+        $this->xp = max(0, $x);
+    }
+
+    public function getMoonDust(): int
+    {
+        return $this->moonDust;
+    }
+    public function setMoonDust(int $md): void
+    {
+        $this->moonDust = max(0, $md);
+    }
+    public function addMoonDust(int $md): void
+    {
+        $this->moonDust = max(0, $this->moonDust + $md);
+    }
+
+    public function setAvatar(string $avatar): void
+    {
+        $this->avatar = $avatar;
+    }
+
+    public function getAvatar(): ?string
+    {
+        return $this->avatar;
     }
 }

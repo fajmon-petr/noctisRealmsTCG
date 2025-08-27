@@ -7,7 +7,7 @@ services:
 
 	- App\Model\Modules\User\UserFacade
 	- App\Model\Modules\Profile\ProfileFacade
-	- App\Model\Modules\Profile\FactionStatsFacade
+	- App\Model\Modules\Profile\SeasonStatsFacade
 
 search:
 	-	in: %appDir%

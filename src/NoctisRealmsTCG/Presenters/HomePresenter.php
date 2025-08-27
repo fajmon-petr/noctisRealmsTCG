@@ -95,7 +95,7 @@ final class HomePresenter extends BasePresenter
 
         $this->template->news = [
             // === FRACE ===
-            ['title' => 'Tab „Frakce“ na profilu', 'text' => 'Základní info o zvolené frakci + mini žebříček.', 'status' => 'todo'],
+            ['title' => 'Hlavní „Frakce“ na Home/Frakce', 'text' => 'Detailní info o frakcích, jejich žebříčky, body, počet karet, koeficient, vítězné body.', 'status' => 'todo'],
             ['title' => 'Stránka Frakce', 'text' => 'Detail frakce: žebříček hráčů, level frakce, počet hráčů, popis.', 'status' => 'todo'],
             ['title' => 'Darování karet', 'text' => 'Mechanika pro poslání karty jinému hráči (ověření, poplatek v Moon Dust).', 'status' => 'idea'],
 
