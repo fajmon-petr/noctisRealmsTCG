@@ -2,7 +2,6 @@
 
 namespace App\Presenters;
 
-use App\Model\Entity\PlayerSeasonStats;
 use App\Model\Entity\Profile;
 use App\Model\Entity\Season;
 use App\Model\Entity\User;
@@ -160,7 +159,7 @@ final class ProfilePresenter extends BasePresenter
     private function composeFactionTab(Profile $profile, ?int $seasonId): void
     {
         $rows = $this->seasonStatsFacade->allSeasonsWithMyStats($profile);
-
+        
         if ($seasonId === null) {
             $seasonId = $this->em->getRepository(Season::class)->findOneBy(['endAt' => null])->id;
         }
@@ -185,7 +184,7 @@ final class ProfilePresenter extends BasePresenter
         }
 
         $this->template->seasonFactionSlug = $current['factionSlug'];
-        bdump($current['finalRank']);
+        
         // frakce pro styling headeru (bez dalšího dotazu)
         $this->template->seasonFaction = (object) [
             'name' => $current['factionName'] ?? null,
@@ -195,7 +194,7 @@ final class ProfilePresenter extends BasePresenter
             'start' => $current['startAt'] ? $current['startAt']->format('d. m. Y') : null,
             'end' => $current['endAt'] ? $current['endAt']->format('d. m. Y') : 'současnost',
         ];
-
+        
         // čísla pro karty
         $this->template->f = [
             'points' => (int) ($current['points'] ?? 0),

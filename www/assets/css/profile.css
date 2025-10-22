@@ -131,13 +131,6 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05)
 }
 
-.nr-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, .25)
-}
-
 .nr-stat .nr-box {
   display: flex;
   flex-direction: column;
@@ -151,6 +144,22 @@
 .nr-stat-value {
   font-weight: 700;
   font-size: 1.25rem
+}
+
+.nr-stat-value.top-row{
+  display:block;
+  max-width:100%;
+  font-size:.95rem;       /* menší než 1.25rem */
+  font-weight:600;
+  line-height:1.2;
+  white-space:nowrap;     /* jeden řádek */
+  overflow:hidden;
+  text-overflow:ellipsis; /* … když se nevejde */
+  color:#e9ddff;
+}
+.nr-stat-value.top-row {
+  color:inherit;
+  text-decoration:none;
 }
 
 /* XP progress */
@@ -346,7 +355,7 @@
 .rc-value {
   position: absolute;
   left: 50%;
-  bottom: 10%;
+  bottom: 13%;
   transform: translateX(-50%);
   font-family: "Cinzel", ui-serif, Georgia, "Times New Roman", serif;
   font-weight: 800;

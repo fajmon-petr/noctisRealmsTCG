@@ -1,0 +1,93 @@
+{block head}
+{include parent}
+<link rel="stylesheet" href="{$basePath}/assets/css/base-ui.css?v={$assetsVer}">
+{/block}
+
+{block content}
+{var $slug = (method_exists($faction,'getSlug') ? $faction->getSlug() : ($faction->slug ?? 'noctis'))}
+
+<div class="container py-4 f-{$slug}">
+  <!-- Úvodní info blok -->
+  <div class="nr-glass p-3 p-md-4 rounded-4 mb-4">
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge-faction">
+        <span class="badge-dot"></span>
+        <span>{$faction->name ?? $seasonFaction?->name ?? 'Frakce'}</span>
+      </span>
+    </div>
+    <p class="mb-0 mt-2 text-muted">
+      Tady bude krátké shrnutí frakční sezóny, novinky a další drobnosti. (WIP)
+    </p>
+  </div>
+
+  <!-- Tabs -->
+  {var $tabs = ['ignis'=>'Ignis','vitae'=>'Vitae','noctis'=>'Noctis']}
+  {var $activeSlug = ($presenter->getParameter('slug') ?: $slug)}
+  <ul class="nav nav-pills nr-tabs gap-2 mb-3" role="tablist">
+    {foreach $tabs as $s => $label}
+      <li class="nav-item">
+        <a n:class="nav-link, ($activeSlug === $s) ? 'active'"
+           href="{link this, slug => $s, season => $presenter->getParameter('season')}"
+           role="tab">{$label}</a>
+      </li>
+    {/foreach}
+  </ul>
+
+  <!-- Obsah aktivní frakce -->
+  <div class="f-grid">
+    <section class="f-col-8">
+      <div class="nr-glass p-3 p-md-4 rounded-4 mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <div class="text-muted small">Sezóna</div>
+            <div class="fw-semibold">
+              {ifset $seasonFaction?->start}{$seasonFaction?->start|date:'j.n.Y'}{/ifset}
+              {ifset $seasonFaction?->end} – {$seasonFaction?->end|date:'j.n.Y'}{/ifset}
+            </div>
+          </div>
+          <div class="d-flex gap-3">
+            <div>
+              <div class="text-muted small">Pozice</div>
+              <div class="fw-bold">{ifset $seasonFaction?->rank}#{$seasonFaction?->rank}{else}—{/ifset}</div>
+            </div>
+            <div>
+              <div class="text-muted small">Body celkem</div>
+              <div class="fw-bold">{$f['points'] ?? 0}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rarity-cards">
+          <div class="rarity-card">
+            <div class="rc-label">Common</div>
+            <div class="rc-value">{$f['common'] ?? 0}</div>
+          </div>
+          <div class="rarity-card">
+            <div class="rc-label">Uncommon</div>
+            <div class="rc-value">{$f['uncommon'] ?? 0}</div>
+          </div>
+          <div class="rarity-card">
+            <div class="rc-label">Rare</div>
+            <div class="rc-value">{$f['rare'] ?? 0}</div>
+          </div>
+          <div class="rarity-card">
+            <div class="rc-label">Epic</div>
+            <div class="rc-value">{$f['epic'] ?? 0}</div>
+          </div>
+          <div class="rarity-card">
+            <div class="rc-label">Legendary</div>
+            <div class="rc-value">{$f['legendary'] ?? 0}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="f-col-4">
+      <div class="nr-glass p-3 p-md-4 rounded-4">
+        <div class="fw-semibold mb-2">Další informace</div>
+        <p class="text-muted mb-0">Tady budou drobné metriky, odkazy, mini-leaderboard atd. (WIP)</p>
+      </div>
+    </aside>
+  </div>
+</div>
+{/block}

@@ -13,20 +13,22 @@
 {var $xpPct = $xpPct ?? 0}
 {var $slug = $seasonFaction?->slug}
 {var $currentSlug = ($profile?->faction?->slug ?? 'noctis')}
+{var $seasonSlug  = $seasonFaction?->slug ?? $currentSlug}
+{var $seasonColor = $seasonFaction?->color ?? ($profile?->faction?->color ?? '#6A1B9A')}
 
 <div class="container py-4">
   <ul class="nav nav-pills nr-tabs gap-2 mb-3" role="tablist">
     <li class="nav-item">
-      <a n:class="nav-link, ($presenter->tab === 'profile') ? 'active', ('f-' . $currentSlug)" data-bs-toggle="tab" href="#tabProfile"
-        role="tab">Profil</a>
+      <a n:class="nav-link, ($presenter->tab === 'profile') ? 'active', ('f-' . $currentSlug)" data-bs-toggle="tab"
+        href="#tabProfile" role="tab">Profil</a>
     </li>
     <li class="nav-item">
-      <a n:class="nav-link, ($presenter->tab === 'season') ? 'active', ('f-' . $currentSlug)" data-bs-toggle="tab" href="#tabSeason"
-        role="tab">Sezóna</a>
+      <a n:class="nav-link, ($presenter->tab === 'season') ? 'active', ('f-' . $currentSlug)" data-bs-toggle="tab"
+        href="#tabSeason" role="tab">Sezóna</a>
     </li>
     <li class="nav-item">
-      <a n:class="nav-link, ($presenter->tab === 'ach') ? 'active', ('f-' . $currentSlug)" data-bs-toggle="tab" href="#tabAchievements"
-        role="tab">Úspěchy</a>
+      <a n:class="nav-link, ($presenter->tab === 'ach') ? 'active', ('f-' . $currentSlug)" data-bs-toggle="tab"
+        href="#tabAchievements" role="tab">Úspěchy</a>
     </li>
   </ul>
 
@@ -44,23 +46,24 @@
 
             <div class="col-12 col-lg-8">
               <div class="nr-grid">
-                <div class="nr-field">
-                  <div class="nr-label">Jméno</div>
-                  <div class="nr-box">{$profile?->nickname ?? '—'}</div>
-                </div>
-                <div class="nr-field">
-                  <div class="nr-label">Email</div>
-                  <div class="nr-box">{if $email}<a class="nr-link" href="mailto:{$email}">{$email}</a>{else}—{/if}
+                <div class="nr-stat">
+                  <div class="nr-box">
+                    <div class="nr-stat-label">Jméno</div>
+                    <div class="nr-stat-value top-row">{$profile?->nickname ?? '—'}</div>
                   </div>
                 </div>
-                <div class="nr-field">
-                  <div class="nr-label">Frakce</div>
-                  <div class="nr-box d-flex align-items-center gap-2">
-                    <span class="nr-dot" style="background: {$profile?->faction?->color ?? '#6a1b9a'}"></span>
-                    <span>{$profile?->faction?->name ?? '—'}</span>
+                <div class="nr-stat">
+                  <div class="nr-box">
+                    <div class="nr-stat-label">Frakce</div>
+                    <div class="nr-stat-value top-row">{$profile?->faction?->name ?? '—'}</div>
                   </div>
                 </div>
-
+                <div class="nr-stat">
+                  <div class="nr-box">
+                    <div class="nr-stat-label">Email</div>
+                    <div class="nr-stat-value top-row">{$email}</div>
+                  </div>
+                </div>
                 <div class="nr-stat">
                   <div class="nr-box">
                     <div class="nr-stat-label">Počet karet</div>
@@ -119,7 +122,7 @@
           <!-- vlevo: frakce -->
           <div class="nr-faction-brand">
             <div class="nr-faction-badge"
-              style="background-image:url('{$basePath}/assets/factions/{$seasonFaction?->slug}.png')"></div>
+              style="background-image:url('{$basePath}/assets/factions/{$seasonFactionSlug}.png')"></div>
             <div>
               <div class="nr-faction-name">{$seasonFaction?->name}</div>
               <div class="nr-faction-sub">{$seasonFaction?->start} - {$seasonFaction?->end}</div>

@@ -9,10 +9,19 @@
 
 {block head}
 	<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{$basePath}/assets/css/common.css?v={$assetsVer}">
+	<link rel="stylesheet" href="{$basePath}/assets/css/common.css?v={$assetsVer}">
 {/block}
 </head>
-<body>
+
+{var $presenterName = $presenter->name}
+{var $isFluid = in_array($presenterName, ['Faction','Shop'])}
+{var $hasRain = in_array($presenterName, ['Home','Profile'])}
+
+{var $bodyClass = ($isFluid ? 'is-fluid' : 'is-fixed')
+    . ($hasRain ? ' has-rain' : '')
+    . ' ctx-' . strtolower($presenterName)}
+
+<body class="{$bodyClass}">
 
     {ifset $showRain}
         <div id="pixel-rain" aria-hidden="true"></div>
@@ -41,11 +50,13 @@
         </div>
       {/if}
 
-      <nav class="nav">
-        <a n:href="Home:default" n:class="$presenter->isLinkCurrent('Home:*') ? active">Domů</a>
-        <a class="btn btn-ghost" n:href="Profile:default" n:if="$user->isLoggedIn()">Moje karta</a>
-        <a n:href="Home:logout" n:if="$user->isLoggedIn()">Odhlásit</a>
-      </nav>
+	<nav class="nav">
+		<a n:href="Home:default" n:class="$presenter->isLinkCurrent('Home:*') ? active">Domů</a>
+		<a n:href="Faction:default" n:class="$presenter->isLinkCurrent('Faction:*') ? active" n:if="$user->isLoggedIn()">Frakce</a>
+		<a n:href="Shop:default" n:class="$presenter->isLinkCurrent('Shop:*') ? active" n:if="$user->isLoggedIn()">Obchod</a>
+		<a class="btn btn-ghost" n:href="Profile:default" n:if="$user->isLoggedIn()">Moje karta</a>
+		<a n:href="Home:logout" n:if="$user->isLoggedIn()">Odhlásit</a>
+	</nav>
     </div>
     {*! ↑↑↑ NOVÝ WRAPPER VPRAVO ↑↑↑ *}
   </div>

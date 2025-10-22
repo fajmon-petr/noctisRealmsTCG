@@ -1,0 +1,6 @@
+{block content}
+<h1>{$item->getName()}</h1>
+<p n:if="method_exists($item,'getFaction')">Frakce: {$item->getFaction()}</p>
+<p n:if="method_exists($item,'getRarity')">Rarita: {$item->getRarity()}</p>
+<p n:if="method_exists($item,'getPrice')">Cena: {$item->getPrice()|number:0,',',' '} Kč</p>
+{/block}

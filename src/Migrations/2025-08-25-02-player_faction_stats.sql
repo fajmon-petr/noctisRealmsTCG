@@ -18,10 +18,6 @@ CREATE TABLE player_faction_stats (
   UNIQUE KEY uniq_profile_faction_season (profile_id, faction_id, season_id),
   KEY idx_leaderboard (faction_id, points_total),
 
-  CONSTRAINT fk_pfs_profile
-    FOREIGN KEY (profile_id) REFERENCES profiles(id)
-    ON DELETE CASCADE,
-  CONSTRAINT fk_pfs_faction
-    FOREIGN KEY (faction_id) REFERENCES factions(id)
-    ON DELETE CASCADE
+  CONSTRAINT fk_pfs_profile FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE,
+  CONSTRAINT fk_pfs_faction FOREIGN KEY (faction_id) REFERENCES factions(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

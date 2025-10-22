@@ -6,8 +6,11 @@ services:
 	- App\Model\Service\LevelingService
 
 	- App\Model\Modules\User\UserFacade
+
 	- App\Model\Modules\Profile\ProfileFacade
 	- App\Model\Modules\Profile\SeasonStatsFacade
+
+	- App\Model\Modules\Faction\FactionFacade
 
 search:
 	-	in: %appDir%
