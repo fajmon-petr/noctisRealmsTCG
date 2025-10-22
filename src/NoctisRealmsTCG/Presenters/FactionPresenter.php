@@ -2,6 +2,7 @@
 
 namespace App\Presenters;
 
+use App\Model\Entity\Faction;
 use App\Model\Modules\Faction\FactionFacade;
 use Doctrine\ORM\EntityManagerInterface;
 use Nette;
@@ -22,6 +23,8 @@ final class FactionPresenter extends BasePresenter
      */
     public function renderDefault(?string $slug = null): void
     {
+        $this->template->showRain = true;
+
         // 1) frakce
         $faction = $this->factionFacade->getFactionBySlugOrDefault($slug);
         if (!$faction) {
@@ -82,7 +85,10 @@ final class FactionPresenter extends BasePresenter
             'rank'  => null, // můžeš naplnit později (finální umístění)
         ];
 
+        $factions = $this->factionFacade->getMainFactions();
+        
         // 7) předání do šablony
+        $this->template->factions      = $factions;
         $this->template->faction       = $faction;
         $this->template->season        = $season;
         $this->template->f             = $f;               // pro tvoje rarity karty a body v záhlaví

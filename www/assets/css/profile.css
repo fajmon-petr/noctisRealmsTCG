@@ -1,357 +1,228 @@
-:root{ --faction:#6A1B9A; }          /* fallback */
+/* =========================
+   PROFILE / SEASON SKIN (v1)
+   - funguje s původním markupem:
+     .nr-profile-skin f-{$currentSlug}
+     .nr-season-tab   f-{$slug}
+   - taby neutrální (fialové)
+   ========================= */
+
+/* --- Frakční barvy → CSS proměnné --- */
+:root { --faction:#6A1B9A; }              /* fallback */
 .f-ignis  { --faction:#E53935; }
 .f-vitae  { --faction:#43A047; }
 .f-noctis { --faction:#6A1B9A; }
+.f-neutral{ --faction:#9ca3af; }
 
-/* Fallback, kdyby něco přepisovalo Bootstrap taby */
-.tab-pane {
-  display: none;
+/* odvozené akcenty */
+:root{
+  --accent: var(--faction);
+  --accent-line: color-mix(in srgb, var(--accent) 100%, white 60%);
+  --accent-glow: color-mix(in srgb, var(--accent) 100%, white 70%);
+  --ink:#fff;
+  --ink-muted:#cfd0de;
 }
 
-.tab-pane.active,
-.tab-pane.show {
-  display: block;
-}
+/* =================
+   Tabs (NEUTRÁLNÍ)
+   ================= */
+.tab-pane { display:none; }
+.tab-pane.show, .tab-pane.active { display:block; }
 
 .nr-tabs .nav-link{
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 6px 14px;
-  background: color-mix(in oklab, var(--faction) 14%, transparent);
-  border: 1px solid color-mix(in oklab, var(--faction) 40%, transparent);
-  color: color-mix(in oklab, var(--faction) 18%, white 82%);
+  background: #1e1630; /* tmavě-fialová */
+  border: 1px solid rgba(177,129,255,.25);
+  color: #e6e2f3;
   transition: .15s ease;
 }
-
 .nr-tabs .nav-link:hover{
   filter: brightness(1.03);
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--faction) 25%, transparent);
+  box-shadow: 0 0 0 2px rgba(177,129,255,.25);
 }
-
 .nr-tabs .nav-link.active{
   color:#fff;
-  background: linear-gradient(
-    180deg,
-    color-mix(in oklab, var(--faction) 68%, white 8%),
-    color-mix(in oklab, var(--faction) 52%, black 6%)
-  );
-  border-color: color-mix(in oklab, var(--faction) 60%, transparent);
+  background: #261c38;
+  border-color: rgba(177,129,255,.45);
+  box-shadow: 0 4px 16px rgba(80,46,120,.35), inset 0 1px 0 rgba(255,255,255,.12);
+}
+
+/* =========================
+   Panely / boxy / grid (profil)
+   ========================= */
+
+.nr-profile-skin{
+  --accent: var(--faction);
+  --accent-line: color-mix(in srgb, var(--accent) 100%, white 60%);
+  --accent-glow: color-mix(in srgb, var(--accent) 100%, white 70%);
+}
+.nr-profile-skin .nr-glass{
+  background: rgba(15,10,25,.55);
+  border: 1px solid color-mix(in oklab, var(--faction) 30%, #ffffff10);
   box-shadow:
-    0 4px 16px color-mix(in oklab, var(--faction) 38%, transparent),
-    inset 0 1px 0 rgba(255,255,255,.15);
+    0 0 0 1px var(--accent-line) inset,
+    0 18px 40px rgba(0,0,0,.35),
+    0 0 22px var(--accent-glow);
+  border-radius: 16px;
 }
 
-/* Sklo panel */
-.nr-glass {
-  background: rgba(15, 10, 25, .55);
-  border: 1px solid rgba(168, 124, 255, .22);
-  box-shadow: 0 16px 32px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .06)
-}
+.nr-title{ font-weight:700; color:var(--ink); }
+.nr-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.nr-full{ grid-column:1 / -1; }
+@media (max-width: 992px){ .nr-grid{ grid-template-columns:1fr; } }
 
-.nr-panel {
-  background: rgba(255, 255, 255, .03);
-  border: 1px solid rgba(168, 124, 255, .18);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06)
+.nr-label{ font-size:.95rem; color:var(--ink-muted); margin-bottom:6px; }
+.nr-box{
+  min-height:48px; padding:12px 14px; border-radius:14px;
+  background: rgba(255,255,255,.04);
+  border:1px solid color-mix(in oklab, var(--faction) 24%, transparent);
+  color:#fff; box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
 }
-
-/* Avatar + level */
-.nr-avatar {
-  width: 88px;
-  height: 88px;
-  border-radius: 50%;
-  color: #fff;
-  font-size: 36px;
-  font-weight: 800;
-  background: radial-gradient(65% 65% at 30% 30%, #caa6ff 0%, #7a4cff 45%, #4a2b8f 100%);
-  box-shadow: 0 6px 18px rgba(149, 99, 255, .4);
-  user-select: none
-}
-
-.nr-level-badge {
-  position: absolute;
-  top: -6px;
-  left: -6px;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: .8rem;
-  color: #fff;
-  background: linear-gradient(180deg, #a77bff, #6a1b9a);
-  border: 1px solid rgba(255, 255, 255, .2);
-  box-shadow: 0 6px 18px rgba(149, 99, 255, .45)
-}
-
-.nr-title {
-  font-weight: 700;
-  color: #fff
-}
-
-.nr-link {
-  color: #e9ddff;
-  text-decoration: none
-}
-
-.nr-link:hover {
-  text-decoration: underline
-}
-
-/* Grid & boxy */
-.nr-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px
-}
-
-.nr-full {
-  grid-column: 1 / -1
-}
-
-@media (max-width: 992px) {
-  .nr-grid {
-    grid-template-columns: 1fr
-  }
-}
-
-.nr-label {
-  font-size: .95rem;
-  color: rgba(255, 255, 255, .75);
-  margin-bottom: 6px
-}
-
-.nr-box {
-  min-height: 48px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, .04);
-  border: 1px solid rgba(168, 124, 255, .18);
-  color: #fff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05)
-}
-
-.nr-stat .nr-box {
-  display: flex;
-  flex-direction: column;
-  gap: 6px
-}
-
-.nr-stat-label {
-  color: rgba(255, 255, 255, .75)
-}
-
-.nr-stat-value {
-  font-weight: 700;
-  font-size: 1.25rem
-}
-
+.nr-stat .nr-box{ display:flex; flex-direction:column; gap:6px; }
+.nr-stat-label{ color:var(--ink-muted); }
+.nr-stat-value{ font-weight:700; font-size:1.25rem; }
 .nr-stat-value.top-row{
-  display:block;
-  max-width:100%;
-  font-size:.95rem;       /* menší než 1.25rem */
-  font-weight:600;
-  line-height:1.2;
-  white-space:nowrap;     /* jeden řádek */
-  overflow:hidden;
-  text-overflow:ellipsis; /* … když se nevejde */
-  color:#e9ddff;
-}
-.nr-stat-value.top-row {
-  color:inherit;
-  text-decoration:none;
+  font-size:.95rem; font-weight:600; line-height:1.2;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 
-/* XP progress */
-.nr-progress {
-  height: 14px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .06);
-  border: 1px solid rgba(168, 124, 255, .25);
-  overflow: hidden
+/* =========================
+   Avatar / hero / level badge
+   ========================= */
+.nr-hero{
+  position:relative; height:100%;
+  background-image: var(--hero); background-size:cover; background-position:center;
+  border:1px solid color-mix(in oklab, var(--faction) 35%, transparent);
+  border-radius:16px; overflow:hidden;
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--faction) 25%, #ffffff10),
+              0 18px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.nr-hero::after{
+  content:""; position:absolute; inset:0;
+  background: linear-gradient(180deg,
+    color-mix(in oklab, var(--faction) 24%, transparent) 0%,
+    rgba(0,0,0,.22) 60%, rgba(0,0,0,.35) 100%);
+  pointer-events:none;
+}
+.nr-level-badge{
+  position:absolute; top:10px; left:10px; width:32px; height:32px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:50%; font-weight:800; font-size:.9rem; color:#fff;
+  background: var(--accent);
+  border:1px solid color-mix(in oklab, var(--accent) 40%, white 12%);
+  box-shadow: 0 10px 24px color-mix(in oklab, var(--accent) 30%, transparent);
+}
+.nr-level-big{ width:42px; height:42px; font-size:1.05rem; }
+
+/* =================
+   XP progress (profil)
+   ================= */
+.nr-progress{
+  height: 14px; border-radius:999px; overflow:hidden;
+  background: rgba(255,255,255,.06);
+  border:1px solid color-mix(in oklab, var(--faction) 28%, white 6%);
+}
+.nr-progress-bar{
+  width:var(--pct,0%); height:100%;
+  background: linear-gradient(90deg,
+    color-mix(in oklab, var(--faction) 85%, white 6%),
+    color-mix(in oklab, var(--faction) 55%, white 22%));
+  box-shadow: 0 0 18px color-mix(in oklab, var(--faction) 35%, transparent);
 }
 
-.nr-progress-bar {
-  width: var(--pct, 0%);
-  height: 100%;
-  background: linear-gradient(90deg, #8e66ff, #b985ff);
-  box-shadow: 0 0 18px rgba(160, 110, 255, .45)
+/* =========================
+   SEASON = STEJNÝ SKIN JAKO PROFIL
+   (barva = frakce v sezóně, z .nr-season-tab.f-{slug})
+   ========================= */
+
+/* 1) stejné proměnné jako v profilu (odvozené od --faction) */
+.nr-season-tab{
+  --accent: var(--faction);
+  --accent-line: color-mix(in srgb, var(--accent) 100%, white 60%);
+  --accent-glow: color-mix(in srgb, var(--accent) 100%, white 70%);
 }
 
-/* Tlačítka */
-.nr-btn,
-.nr-btn-ghost,
-.nr-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 14px;
-  padding: 10px 14px;
-  text-decoration: none;
-  font-weight: 600;
-  color: #fff
+/* 2) základní panel = stejný jako .nr-glass v profilu */
+.nr-season-tab{
+  position: relative;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(15,10,25,.55);
+  border: 1px solid color-mix(in oklab, var(--accent) 30%, #ffffff10);
+  box-shadow:
+    0 0 0 1px var(--accent-line) inset,     /* tenká „accent“ linka uvnitř */
+    0 18px 40px rgba(0,0,0,.35),
+    0 0 22px var(--accent-glow);            /* jemný vnější glow v barvě frakce */
 }
 
-.nr-btn {
-  background: linear-gradient(180deg, rgba(149, 99, 255, .7), rgba(106, 27, 154, .7));
-  border: 1px solid rgba(168, 124, 255, .4);
-  box-shadow: 0 10px 22px rgba(149, 99, 255, .25)
-}
-
-.nr-btn:hover {
-  filter: brightness(1.05)
-}
-
-.nr-btn-ghost {
-  background: rgba(255, 255, 255, .06);
-  border: 1px solid rgba(168, 124, 255, .3)
-}
-
-.nr-btn-ghost:hover {
-  background: rgba(255, 255, 255, .1)
-}
-
-.nr-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 8px
-}
-
-.nr-chip {
-  background: rgba(140, 87, 255, .22);
-  border: 1px solid rgba(140, 87, 255, .35)
-}
-
-.nr-chip:hover {
-  background: rgba(140, 87, 255, .35)
-}
-
-/* Header: badge + sezóna + total */
-.nr-season-header {
+/* 3) header uvnitř sezóny – decentní frakční nádech, ne plošná barva */
+.nr-season-header{
   display: grid;
   grid-template-columns: 1fr auto auto;
+  align-items: center;
   gap: 16px;
-  align-items: center;
+  padding: 12px 10px 4px;
+  border-radius: 16px;
+
+  background:
+    radial-gradient(70% 60% at 50% -20%, color-mix(in oklab, var(--accent) 20%, transparent), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+  border: 1px solid color-mix(in oklab, var(--accent) 30%, #ffffff10);
+  box-shadow: 0 8px 28px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
 }
 
-@media (max-width: 720px) {
-  .nr-season-header {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
+.nr-faction-brand{ display:flex; align-items:center; gap:12px; }
+.nr-faction-badge{
+  width:48px; height:48px; border-radius:12px;
+  background-size:cover; background-position:center;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+}
+.nr-faction-name{ font-weight:700; letter-spacing:.3px; color:#fff; }
+.nr-faction-sub{ font-size:12px; color:#aeb1c3; }
+
+/* 4) „pilíře“ (pozice/body) – jemné orámování & lehký glow v akcentu */
+.nr-center-stats{ justify-self:center; display:flex; gap:14px; }
+.nr-pill{
+  min-width:120px; padding:10px 14px; border-radius:14px; text-align:center;
+  border:2px solid color-mix(in oklab, var(--accent) 70%, white 6%);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--accent) 35%, transparent),
+    0 10px 24px color-mix(in oklab, var(--accent) 16%, transparent);
+  background: linear-gradient(180deg,
+    color-mix(in oklab, var(--accent) 12%, #0f0a19) 0%,
+    rgba(255,255,255,0.04) 100%);
+}
+.nr-pill-label{ font-size:12px; color:#cfd0de; letter-spacing:.3px; }
+.nr-pill-value{ margin-top:2px; font-weight:800; font-size:22px; }
+
+/* 5) filtr vpravo */
+.nr-season-filter{ justify-self:end; display:flex; flex-direction:column; gap:6px; }
+.nr-label{ font-size:12px; color:#cfd0de; }
+.nr-select{
+  appearance:none; min-width:180px; padding:8px 10px; border-radius:10px;
+  color:#fff; background:#11131a; border:1px solid rgba(255,255,255,.12);
 }
 
-.nr-faction-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+/* responsivita headeru */
+@media (max-width: 720px){
+  .nr-season-header{ grid-template-columns:1fr; gap:10px; }
+  .nr-center-stats, .nr-season-filter { justify-self:start; }
 }
 
-.nr-faction-badge {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background-size: cover;
-  background-position: center;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
-}
 
-.nr-faction-name {
-  font-weight: 700;
-  letter-spacing: .3px;
-}
-
-.nr-faction-sub {
-  font-size: 12px;
-  color: #aeb1c3;
-}
-
-.nr-label {
-  font-size: 12px;
-  color: #cfd0de;
-}
-
-.nr-select {
-  appearance: none;
-  background: #11131a;
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, .12);
-  border-radius: 10px;
-  padding: 8px 10px;
-  min-width: 180px;
-}
-
-/* Total body – kruh/rámeček v akcentu */
-.nr-total-pill {
-  justify-self: end;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 10px 14px;
-  border-radius: 14px;
-  border: 2px solid color-mix(in oklab, var(--faction) 75%, white 5%);
-  box-shadow: 0 0 18px color-mix(in oklab, var(--faction) 28%, transparent);
-}
-
-.nr-total-label {
-  font-size: 12px;
-  color: #d6d6e5;
-}
-
-.nr-total-value {
-  font-size: 22px;
-  font-weight: 800;
-}
-
-/* --- jednotné zaoblení a ořez obrázků --- */
-:root{
-  --card-w: clamp(220px, 24vw, 280px);
-  --card-gap: 32px;
-  --card-radius: 20px;              /* větší radius – schová drobné ořezy */
-}
-
+/* =========================
+   RARITY KARTY (počty)
+   ========================= */
 .rarity-card{
   width:300px;
   border-radius:18px;
   overflow:hidden;
   position:relative;
 }
-
 .rc-img{
   display:block; width:100%; height:auto;
-  clip-path: inset(var(--t,18px) var(--r,18px) var(--b,28px) var(--l,18px) round 18px);
+  clip-path: inset(18px 18px 28px 18px round 18px);
 }
-.cards-row--top  .rc.img{ margin-top: 20px;}
-
-/* ---- stejné mezery v řádku + extra mezera mezi řádky ---- */
-.nr-rarity-grid{ display: grid; gap: var(--card-gap); }  /* svislý gap jako default */
-.cards-row{
-  display: flex;
-  justify-content: center;  /* vycentrovat obsah */
-  gap: var(--gap);
-}
-
-.cards-row--top  .card{ width: var(--w);}
-.cards-row--bottom .card{ width: var(--w); }
-
-/* přidejme trochu větší mezeru jen mezi 1. a 2. řádkem */
-.cards-row{
-  margin-top: calc(var(--card-gap) * 0.6);  /* uprav podle chuti (0.6–1.0) */
-}
-
-
-/* Světlé karty – číslo tmavší, světlo invertujeme */
-.rarity-card.light .rc-value {
-  --num-fill: #3e3e3e;
-  /* podobné barvě popisků na common/uncommon */
-  --num-shadow: #ffffffb3;
-  --num-highlight: #00000055;
-  -webkit-text-stroke: 1px rgba(255, 255, 255, .25);
-}
-
-/* Emboss čísla + posun výš */
 .rc-value {
   position: absolute;
   left: 50%;
@@ -362,249 +233,26 @@
   letter-spacing: .02em;
   font-size: clamp(30px, 6.4vw, 56px);
   line-height: 1;
-
-  /* výchozí barvy (pro tmavé karty) */
-  --num-fill: #f4efe6;
-  --num-shadow: #00000099;
-  /* tmavý stín */
-  --num-highlight: #ffffff66;
-  /* světlo */
-
-  color: var(--num-fill);
+  color: #f4efe6;
   -webkit-text-stroke: 1px rgba(0, 0, 0, .25);
-
-  /* emboss/inset efekt (tmavé karty = světlý text s tmavým stínem nahoru-vlevo) */
   text-shadow:
-    -1px -1px 0 var(--num-shadow),
-    1px 1px 0 var(--num-highlight),
-    0 2px 6px #0006;
+    -1px -1px 0 #00000099,
+     1px  1px 0 #ffffff66,
+     0 2px 6px #0006;
 }
-
-.rarity-card.common .rc-value {
-  --num-fill: #72736F;
+.rarity-card.light .rc-value {
+  color: #3e3e3e;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, .25);
+  text-shadow:
+    -1px -1px 0 #ffffffb3,
+     1px  1px 0 #00000055,
+     0 2px 6px #0006;
 }
+.rarity-card.common .rc-value   { color:#72736F; }
+.rarity-card.uncommon .rc-value { color:#D7D3CE; }
+.rarity-card.rare .rc-value     { color:#27475B; }
+.rarity-card.epic .rc-value     { color:#62436D; }
+.rarity-card.legendary .rc-value{ color:#B47613; }
 
-.rarity-card.uncommon .rc-value {
-  --num-fill: #D7D3CE;
-}
-
-.rarity-card.rare .rc-value {
-  --num-fill: #27475B;
-}
-
-.rarity-card.epic .rc-value {
-  --num-fill: #62436D;
-}
-
-.rarity-card.legendary .rc-value {
-  --num-fill: #B47613;
-}
-
-/* Frakční box – pěkný „panel“ s frakční aurou shora dolů */
-.nr-season-tab{
-  position: relative;
-  padding: 16px;
-  border-radius: 16px;
-  overflow: hidden;                /* aby rohy kliply i overlaye */
-  background: #11131a;            /* základní tmavé pozadí */
-  isolation: isolate;             /* vlastní vrstvení pro pseudo prvky */
-}
-
-/* Frakční přechod: 100% → 0% z vrchu dolů */
-.nr-season-tab::before{
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-
-  /* silnější nahoře, postupně mizí */
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--faction) 45%, transparent) 0%,
-      color-mix(in srgb, var(--faction) 25%, transparent) 35%,
-      color-mix(in srgb, var(--faction) 10%, transparent) 65%,
-      transparent 100%
-    );
-  z-index: 0;
-}
-
-/* Jemné orámování v barvě frakce + drobný stín panelu */
-.nr-season-tab::after{
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  box-shadow:
-    inset 0 0 0 1.5px color-mix(in srgb, var(--faction) 50%, rgba(255,255,255,.06)),
-    0 22px 50px rgba(0,0,0,.35);
-  z-index: 1;
-}
-
-/* Vnitřek jde nad overlay */
-.nr-season-tab > *{
-  position: relative;
-  z-index: 2;
-}
-
-/* ===== Sezónní hlavička (3 sloupce: vlevo brand, uprostřed pilíře, vpravo select) */
-.nr-season-header{
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  align-items: center;
-  column-gap: 20px;
-  padding: 12px 10px 4px;
-  border-radius: 16px;
-
-  /* jemné pozadí podle frakce */
-  background:
-    radial-gradient(70% 60% at 50% -20%, color-mix(in oklab, var(--faction) 28%, transparent), transparent 60%),
-    linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
-  border: 1px solid color-mix(in oklab, var(--faction) 30%, #ffffff10);
-  box-shadow: 0 8px 28px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
-}
-
-/* vycentrovaná středová skupina */
-.nr-center-stats{
-  justify-self: center;
-  display: flex;
-  gap: 14px;
-}
-
-/* „pilíř“ – stejný komponent pro pozici i body */
-.nr-pill{
-  min-width: 120px;
-  padding: 10px 14px;
-  border-radius: 14px;
-  text-align: center;
-  border: 2px solid color-mix(in oklab, var(--faction) 70%, white 6%);
-  box-shadow:
-    0 0 0 1px color-mix(in oklab, var(--faction) 35%, transparent),
-    0 10px 24px color-mix(in oklab, var(--faction) 16%, transparent);
-  background: linear-gradient(180deg,
-              color-mix(in oklab, var(--faction) 12%, #0f0a19) 0%,
-              rgba(255,255,255,0.04) 100%);
-}
-
-.nr-pill-label{
-  font-size: 12px;
-  color: #cfd0de;
-  letter-spacing: .3px;
-}
-
-.nr-pill-value{
-  margin-top: 2px;
-  font-weight: 800;
-  font-size: 22px;
-}
-
-/* pravý sloupec – ať je fakt napravo */
-.nr-season-filter{ justify-self: end; display: flex; flex-direction: column; gap: 6px; }
-
-/* menší zařízení – střed (pilíře) pod brand a select dolů */
-@media (max-width: 720px){
-  .nr-season-header{
-    grid-template-columns: 1fr;
-    row-gap: 10px;
-  }
-  .nr-center-stats{ justify-self: start; }
-  .nr-season-filter{ justify-self: start; }
-}
-
-.nr-profile-skin .nr-glass{
-  border:1px solid color-mix(in oklab, var(--faction) 25%, transparent);
-  background:
-    radial-gradient(70% 50% at 95% 0%, color-mix(in oklab, var(--faction) 18%, transparent) 0%, transparent 65%),
-    radial-gradient(60% 40% at 0% 10%,  color-mix(in oklab, var(--faction) 14%, transparent) 0%, transparent 70%),
-    rgba(15,10,25,.55);
-}
-.nr-profile-skin .nr-progress{ border:1px solid color-mix(in oklab, var(--faction) 28%, white 6%); }
-.nr-profile-skin .nr-progress-bar{
-  background: linear-gradient(90deg,
-    color-mix(in oklab, var(--faction) 85%, white 6%),
-    color-mix(in oklab, var(--faction) 55%, white 22%));
-}
-.nr-profile-skin .nr-avatar{
-  box-shadow:0 0 0 2px color-mix(in oklab, var(--faction) 40%, white 6%),
-             0 8px 20px color-mix(in oklab, var(--faction) 32%, transparent);
-}
-.nr-profile-skin .nr-level-badge{
-  background:var(--faction);
-  border:1px solid color-mix(in oklab, var(--faction) 40%, white 14%);
-}
-
-/* stejné pozadí pro tab Sezóna */
-.nr-profile-tab{
-  border-radius: 16px;
-  padding: 16px;
-  background:
-    radial-gradient(80% 60% at 90% 0%, color-mix(in oklab, var(--faction) 30%, transparent), transparent 60%),
-    radial-gradient(65% 55% at 5% 10%, color-mix(in oklab, var(--faction) 20%, transparent), transparent 65%);
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--faction) 45%, #ffffff10),
-              0 24px 60px rgba(0,0,0,.35);
-}
-
-/* univerzální radius (můžeš upravit na 16/18/20) */
-:root { --r: 16px; }
-
-/* víc zaoblení na panelech a boxech */
-.rounded-4 { border-radius: var(--r) !important; }
-.nr-box, .nr-panel, .nr-select, .nr-glass { border-radius: var(--r); }
-
-/* HERO panel s avatar pozadím */
-.nr-hero{
-  position: relative;
-  height: 100%;
-  background-image: var(--hero);
-  background-size: cover;
-  background-position: center;
-  border: 1px solid color-mix(in oklab, var(--faction) 35%, transparent);
-  box-shadow:
-    0 0 0 2px color-mix(in oklab, var(--faction) 25%, #ffffff10),
-    0 18px 40px rgba(0,0,0,.35),
-    inset 0 1px 0 rgba(255,255,255,.06);
-  overflow: hidden;
-}
-
-/* jemný přechodový závoj, ať čitelnost badge netrpí */
-.nr-hero::after{
-  content:"";
-  position:absolute; inset:0;
-  background:
-    linear-gradient(180deg,
-      color-mix(in oklab, var(--faction) 24%, transparent) 0%,
-      rgba(0,0,0,.22) 60%,
-      rgba(0,0,0,.35) 100%);
-  pointer-events:none;
-}
-
-/* LEVEL badge – větší a v levém horním rohu */
-.nr-level-badge{
-  position:absolute;
-  top:10px; left:10px;
-  width:32px; height:32px;
-  display:flex; align-items:center; justify-content:center;
-  border-radius:50%;
-  font-weight:800; font-size:.9rem;
-  color:#fff;
-  background: var(--faction);
-  border:1px solid color-mix(in oklab, var(--faction) 40%, white 12%);
-  box-shadow:0 10px 24px color-mix(in oklab, var(--faction) 30%, transparent);
-}
-.nr-level-big{
-  width:42px; height:42px;
-  font-size:1.05rem;
-}
-
-/* lehký frakční akcent na rámečcích vpravo */
-.nr-profile-skin .nr-box,
-.nr-profile-skin .nr-panel,
-.nr-profile-skin .nr-glass{
-  border:1px solid color-mix(in oklab, var(--faction) 24%, transparent);
-}
-
-/* progress bar už máš – jen drobný radius sjednocení */
-.nr-progress{ border-radius: calc(var(--r) / 2); }
+/* mezery mezi řádky s kartami */
+.cards-row{ display:flex; justify-content:center; gap:32px; margin-top:20px; }

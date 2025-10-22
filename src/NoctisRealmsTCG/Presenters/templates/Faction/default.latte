@@ -1,93 +1,120 @@
 {block head}
-{include parent}
-<link rel="stylesheet" href="{$basePath}/assets/css/base-ui.css?v={$assetsVer}">
+  {include parent}
+  {* Důležité: na stránce frakce NEZATAHUJ profile.css *}
+  <link rel="stylesheet" href="{$basePath}/assets/css/faction.css?v={$assetsVer}">
 {/block}
 
 {block content}
-{var $slug = (method_exists($faction,'getSlug') ? $faction->getSlug() : ($faction->slug ?? 'noctis'))}
+{var $slug = $faction?->slug ?? 'noctis'}
+{var $xp = $xp ?? 0}
+{var $xpToNext = $xpToNext ?? 100}
+{var $nextLevel = $nextLevel ?? (($factionLevel ?? 1) + 1)}
+{var $xpPct = $xpPct ?? (min(100, (int) round(($xp / max(1,$xpToNext))*100)))}
 
-<div class="container py-4 f-{$slug}">
-  <!-- Úvodní info blok -->
-  <div class="nr-glass p-3 p-md-4 rounded-4 mb-4">
-    <div class="d-flex align-items-center gap-2">
-      <span class="badge-faction">
-        <span class="badge-dot"></span>
-        <span>{$faction->name ?? $seasonFaction?->name ?? 'Frakce'}</span>
-      </span>
-    </div>
-    <p class="mb-0 mt-2 text-muted">
-      Tady bude krátké shrnutí frakční sezóny, novinky a další drobnosti. (WIP)
-    </p>
-  </div>
-
-  <!-- Tabs -->
-  {var $tabs = ['ignis'=>'Ignis','vitae'=>'Vitae','noctis'=>'Noctis']}
-  {var $activeSlug = ($presenter->getParameter('slug') ?: $slug)}
-  <ul class="nav nav-pills nr-tabs gap-2 mb-3" role="tablist">
-    {foreach $tabs as $s => $label}
-      <li class="nav-item">
-        <a n:class="nav-link, ($activeSlug === $s) ? 'active'"
-           href="{link this, slug => $s, season => $presenter->getParameter('season')}"
-           role="tab">{$label}</a>
-      </li>
-    {/foreach}
-  </ul>
-
-  <!-- Obsah aktivní frakce -->
-  <div class="f-grid">
-    <section class="f-col-8">
-      <div class="nr-glass p-3 p-md-4 rounded-4 mb-3">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <div class="text-muted small">Sezóna</div>
-            <div class="fw-semibold">
-              {ifset $seasonFaction?->start}{$seasonFaction?->start|date:'j.n.Y'}{/ifset}
-              {ifset $seasonFaction?->end} – {$seasonFaction?->end|date:'j.n.Y'}{/ifset}
-            </div>
-          </div>
-          <div class="d-flex gap-3">
-            <div>
-              <div class="text-muted small">Pozice</div>
-              <div class="fw-bold">{ifset $seasonFaction?->rank}#{$seasonFaction?->rank}{else}—{/ifset}</div>
-            </div>
-            <div>
-              <div class="text-muted small">Body celkem</div>
-              <div class="fw-bold">{$f['points'] ?? 0}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="rarity-cards">
-          <div class="rarity-card">
-            <div class="rc-label">Common</div>
-            <div class="rc-value">{$f['common'] ?? 0}</div>
-          </div>
-          <div class="rarity-card">
-            <div class="rc-label">Uncommon</div>
-            <div class="rc-value">{$f['uncommon'] ?? 0}</div>
-          </div>
-          <div class="rarity-card">
-            <div class="rc-label">Rare</div>
-            <div class="rc-value">{$f['rare'] ?? 0}</div>
-          </div>
-          <div class="rarity-card">
-            <div class="rc-label">Epic</div>
-            <div class="rc-value">{$f['epic'] ?? 0}</div>
-          </div>
-          <div class="rarity-card">
-            <div class="rc-label">Legendary</div>
-            <div class="rc-value">{$f['legendary'] ?? 0}</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <aside class="f-col-4">
-      <div class="nr-glass p-3 p-md-4 rounded-4">
-        <div class="fw-semibold mb-2">Další informace</div>
-        <p class="text-muted mb-0">Tady budou drobné metriky, odkazy, mini-leaderboard atd. (WIP)</p>
-      </div>
-    </aside>
-  </div>
+{* --- TABS: frakce --- *}
+{var $currentSlug = $faction->getSlug()}
+<div class="fx-tabs mb-3">
+  <a n:foreach="$factions as $fa"
+     n:href="Faction:default slug => $fa->getSlug()"
+     n:class="'fx-tab', $currentSlug === $fa->getSlug() ? 'active'">
+     {$fa->getName()}
+  </a>
 </div>
+
+<div class="page-faction f-{$slug}">
+  <div class="fx-wrap">
+    <div class="fx-grid">
+
+      <!-- KOMPAKTNÍ BANNER přes 3 sloupce -->
+      <div class="fx-banner fx-compact">
+        <div class="fx-banner-bg" style="background-image:url('{$basePath}/assets/factions/{$seasonFaction->slug}.png')"></div>
+
+        <div class="fx-banner-inner">
+          <div class="fx-left">
+            <div class="fx-level">{$factionLevel ?? 1}</div>
+            <div class="fx-titles">
+              <div class="fx-fname">{$faction?->name}</div>
+              <div class="fx-season">
+                Sezóna: {$season?->name ?? '—'}
+                {if $season?->startAt}&nbsp;•&nbsp;{$season->startAt|date:'j.n.Y'} – {if $season?->endAt}{$season->endAt|date:'j.n.Y'}{else}současnost{/if}{/if}
+              </div>
+            </div>
+          </div>
+
+          <div class="fx-right">
+            <div class="fx-xpbar" style="--pct: {$xpPct}%">
+              <div class="bar"></div>
+            </div>
+            <div class="fx-xp-meta">{$xp} / {$xpToNext} XP • další úroveň {$nextLevel}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- D) Odkazy pod XP -->
+      <div class="fx-links">
+        <a n:href="Faction:history slug=>$slug">Historie</a>
+        <a n:href="Faction:members slug=>$slug">Seznam hráčů</a>
+        {*<a n:href="Card:submit faction=>$slug">Přispět karty</a>*}
+        <a n:href="Faction:dust slug=>$slug">Přispět Dust</a>
+      </div>
+
+      <!-- STŘED: statistiky -->
+      <div class="fx-stats">
+        <div class="fx-pill"><div class="fx-label">Pozice</div><div class="fx-val">{$position ?? '—'}</div></div>
+        <div class="fx-pill"><div class="fx-label">Body celkem</div><div class="fx-val">{$stats['pointsTotal'] ?? 0}</div></div>
+        <div class="fx-box"><div class="fx-label">Počet koupených balíčků</div><div class="fx-num">{$packsBought ?? 0}</div></div>
+        <div class="fx-box"><div class="fx-label">Počet karet</div><div class="fx-num">{$cardsCount ?? 0}</div></div>
+      </div>
+
+       <!-- PRAVÝ: leaderboard -->
+      <div class="fx-leader">
+  <div class="fx-leader-head">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <div class="fx-title">Žebříček frakce</div>
+        <div class="fx-sub">Hráči seřazení podle bodů</div>
+      </div>
+
+      {* jednoduchá paginace – 20 položek na stránku *}
+      {var $page = (int)($presenter->getParameter('page') ?? 1)}
+      {var $perPage = 20}
+      {var $total = $leaderboardTotal ?? count($leaderboard ?? [])}
+      {var $pages = max(1, (int)ceil($total / $perPage))}
+      <nav class="fx-pager" aria-label="Leaderboard pagination">
+        <a n:href="this page => max(1, $page-1)" class="fx-btn" n:attr="aria-disabled: $page===1">‹</a>
+        <span class="fx-pager-cur">{$page}/{$pages}</span>
+        <a n:href="this page => min($pages, $page+1)" class="fx-btn" n:attr="aria-disabled: $page===$pages">›</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="fx-table">
+    <table>
+      <thead>
+      <tr>
+        <th style="width:84px">Pořadí</th>
+        <th>Jméno</th>
+        <th class="right" style="width:120px">Body</th>
+      </tr>
+      </thead>
+      <tbody>
+      {if isset($leaderboard) && $leaderboard}
+        {var $offset = ($page-1)*$perPage}
+        {foreach array_slice($leaderboard, $offset, $perPage) as $i => $row}
+          <tr>
+            <td>{= $offset + $i + 1}</td>
+            <td>{$row['name']}</td>
+            <td class="right">{$row['points']|number:0,',',' '}</td>
+          </tr>
+        {/foreach}
+      {else}
+        <tr><td colspan="3" class="empty">Zatím žádná data.</td></tr>
+      {/if}
+      </tbody>
+    </table>
+  </div>
+      </div>
+    </div><!-- /fx-grid -->
+  </div><!-- /fx-wrap -->
+</div><!-- /page-faction -->
 {/block}

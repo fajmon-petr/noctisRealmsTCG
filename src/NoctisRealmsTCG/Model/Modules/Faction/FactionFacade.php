@@ -83,4 +83,14 @@ class FactionFacade
             ],
         ];
     }
+
+    public function getMainFactions() 
+    {
+        return $this->em->getRepository(Faction::class)->createQueryBuilder('f')
+        ->where('f.slug != :neutral')
+        ->setParameter('neutral', 'neutral')
+        ->orderBy('f.id', 'ASC')
+        ->getQuery()
+        ->getResult();
+    }
 }
