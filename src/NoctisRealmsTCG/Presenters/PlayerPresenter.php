@@ -2,17 +2,17 @@
 
 namespace App\Presenters;
 
-use App\Model\Entity\Profile;
+use App\Model\Entity\Player;
 use App\Model\Entity\Season;
 use App\Model\Entity\User;
-use App\Model\Modules\Profile\ProfileFacade;
-use App\Model\Modules\Profile\SeasonStatsFacade;
+use App\Model\Modules\Player\PlayerFacade;
+use App\Model\Modules\Player\SeasonStatsFacade;
 use App\Model\Service\LevelingService;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class ProfilePresenter extends BasePresenter
+class PlayerPresenter extends BasePresenter
 {
-    private ProfileFacade $profileFacade;
+    private PlayerFacade $playerFacade;
 
     private SeasonStatsFacade $seasonStatsFacade;
 
@@ -24,12 +24,12 @@ final class ProfilePresenter extends BasePresenter
     public ?int $season = null;
 
     /** @persistent */
-    public string $tab = 'profile';
+    public string $tab = 'player';
 
-    public function __construct(ProfileFacade $profileFacade, LevelingService $levelingService, SeasonStatsFacade $seasonStatsFacade, EntityManagerInterface $entityManager)
+    public function __construct(PlayerFacade $playerFacade, LevelingService $levelingService, SeasonStatsFacade $seasonStatsFacade, EntityManagerInterface $entityManager)
     {
         parent::__construct($entityManager);
-        $this->profileFacade = $profileFacade;
+        $this->playerFacade = $playerFacade;
         $this->levelingService = $levelingService;
         $this->seasonStatsFacade = $seasonStatsFacade;
     }
@@ -43,21 +43,21 @@ final class ProfilePresenter extends BasePresenter
         // načteme existující profil kvůli defaultům (nevadí, když ještě není)
         /** @var User $userEntity */
         $userEntity = $this->em->getRepository(User::class)->find($this->getUser()->getId());
-        $profile = $this->profileFacade->getOrCreateForUser($userEntity);
+        $player = $this->playerFacade->getOrCreateForUser($userEntity);
 
         $f = new \Nette\Application\UI\Form;
 
         $f->addText('nickname', 'Jméno')
             ->setRequired('Zadej prosím jméno.')
             ->addRule(\Nette\Forms\Form::MAX_LENGTH, 'Max 32 znaků.', 32)
-            ->setDefaultValue($profile?->getNickname() ?? '');
+            ->setDefaultValue($player?->getNickname() ?? '');
 
         $f->addRadioList('faction', 'Frakce', [
             'ignis' => 'Ignis',
             'vitae' => 'Vitae',
             'noctis' => 'Noctis',
         ])->setRequired('Vyber frakci')
-            ->setDefaultValue($profile?->getFaction()?->getSlug() ?? null);
+            ->setDefaultValue($player?->getFaction()?->getSlug() ?? null);
 
         $f->addProtection();
         $f->addSubmit('save', 'Vybrat frakci');
@@ -77,23 +77,23 @@ final class ProfilePresenter extends BasePresenter
             ->find($this->getUser()->getId());
 
         // profil máme i pro úplně nové uživatele
-        $profile = $this->profileFacade->getOrCreateForUser($userEntity);
+        $player = $this->playerFacade->getOrCreateForUser($userEntity);
 
         // je to první volba frakce? (použijeme jako trigger bonusu)
-        $firstFactionChoice = ($profile->getFaction() === null);
+        $firstFactionChoice = ($player->getFaction() === null);
 
         // vše v jedné transakci
-        $this->em->wrapInTransaction(function () use ($userEntity, $profile, $v, $firstFactionChoice): void {
+        $this->em->wrapInTransaction(function () use ($userEntity, $player, $v, $firstFactionChoice): void {
             // uložit jméno
-            $profile->setNickname((string) $v->nickname);
+            $player->setNickname((string) $v->nickname);
 
             // nastavit frakci přes tvůj service (držíme se tvé architektury)
-            $this->profileFacade->setFactionBySlug($userEntity, (string) $v->faction);
+            $this->playerFacade->setFactionBySlug($userEntity, (string) $v->faction);
 
             // jednorázový bonus při první volbě frakce
             if ($firstFactionChoice) {
                 // předpoklad: v entitě máš pole moonDust + get/set (viz níže)
-                $profile->setMoonDust(($profile->getMoonDust() ?? 0) + 200);
+                $player->setMoonDust(($player->getMoonDust() ?? 0) + 200);
             }
 
             $this->em->flush();
@@ -103,11 +103,11 @@ final class ProfilePresenter extends BasePresenter
             $firstFactionChoice ? 'Registrace proběhla úspěšně (+200 Moon Dust).' : 'Profil uložen.',
             'success'
         );
-        $this->redirect('Profile:default');
+        $this->redirect('Player:default');
     }
 
 
-    /** /profile/select – výběr frakce (zobrazí šablonu select.latte) */
+    /** /player/select – výběr frakce (zobrazí šablonu select.latte) */
     public function renderSelect(): void
     {
         if (!$this->getUser()->isLoggedIn()) {
@@ -117,7 +117,7 @@ final class ProfilePresenter extends BasePresenter
         $this->template->showRain = true;
     }
 
-    /** /profile – můj profil */
+    /** /player – můj profil */
     public function renderDefault(): void
     {
         if (!$this->getUser()->isLoggedIn()) {
@@ -125,40 +125,40 @@ final class ProfilePresenter extends BasePresenter
         }
 
         $user = $this->em->getRepository(User::class)->find($this->user->getId());
-        $profile = $this->em->getRepository(Profile::class)
+        $player = $this->em->getRepository(Player::class)
             ->findOneBy(['user' => $user]);
 
-        $this->composeProfileTab($profile);
-        $this->composeFactionTab($profile, $this->season);
-        $this->composeAchievementsTab($profile);
+        $this->composePlayerTab($player);
+        $this->composeFactionTab($player, $this->season);
+        $this->composeAchievementsTab($player);
 
         // déšť chceš i na profilu? pak:
         $this->template->showRain = true;
     }
 
-    private function composeProfileTab(Profile $profile): void
+    private function composePlayerTab(Player $player): void
     {
-        $need = $this->levelingService->thresholdFor($profile->getLevel());
-        $xpPct = $this->levelingService->percent($profile);
+        $need = $this->levelingService->thresholdFor($player->getLevel());
+        $xpPct = $this->levelingService->percent($player);
 
-        $slug = $profile?->faction?->slug ?? 'noctis';
+        $slug = $player?->faction?->slug ?? 'noctis';
 
-        $avatarPath = $profile->getAvatar()
-            ? '/uploads/avatars/' . ltrim((string) $profile->getAvatar(), '/')
+        $avatarPath = $player->getAvatar()
+            ? '/uploads/avatars/' . ltrim((string) $player->getAvatar(), '/')
             : '/assets/avatars/avatar-' . $slug . '.png';
 
-        $this->template->profile = $profile;
+        $this->template->player = $player;
         $this->template->xpToNext = $need;
-        $this->template->xp = $profile->getXp();
-        $this->template->level = $profile->getLevel();
+        $this->template->xp = $player->getXp();
+        $this->template->level = $player->getLevel();
         $this->template->xpPct = $xpPct;
         $this->template->avatarPath = $avatarPath;
     }
 
     /** Tab „Frakce“: sezóny, moje stats v sezóně/lifetime, leaderboard */
-    private function composeFactionTab(Profile $profile, ?int $seasonId): void
+    private function composeFactionTab(Player $player, ?int $seasonId): void
     {
-        $rows = $this->seasonStatsFacade->allSeasonsWithMyStats($profile);
+        $rows = $this->seasonStatsFacade->allSeasonsWithMyStats($player);
         
         if ($seasonId === null) {
             $seasonId = $this->em->getRepository(Season::class)->findOneBy(['endAt' => null])->id;
@@ -190,7 +190,7 @@ final class ProfilePresenter extends BasePresenter
             'name' => $current['factionName'] ?? null,
             'slug' => $current['factionSlug'] ?? null,
             'color' => $current['factionColor'] ?? '#6A1B9A',
-            'rank' => $current['finalRank'] ?? $this->seasonStatsFacade->getLiveRank($profile->id, $seasonId),
+            'rank' => $current['finalRank'] ?? $this->seasonStatsFacade->getLiveRank($player->id, $seasonId),
             'start' => $current['startAt'] ? $current['startAt']->format('d. m. Y') : null,
             'end' => $current['endAt'] ? $current['endAt']->format('d. m. Y') : 'současnost',
         ];
@@ -207,9 +207,9 @@ final class ProfilePresenter extends BasePresenter
     }
 
     /** Tab „Achievementy“ – zatím placeholder */
-    private function composeAchievementsTab(Profile $profile): void
+    private function composeAchievementsTab(Player $player): void
     {
-        $this->template->achievements = $profile->getAchievements();
+        $this->template->achievements = $player->getAchievements();
         // později sem načti detailní seznam, filtry, atd.
     }
 }

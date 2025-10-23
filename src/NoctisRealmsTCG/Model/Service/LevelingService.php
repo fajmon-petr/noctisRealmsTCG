@@ -2,7 +2,7 @@
 
 namespace App\Model\Service;
 
-use App\Model\Entity\Profile;
+use App\Model\Entity\Player;
 
 class LevelingService
 {
@@ -14,7 +14,7 @@ class LevelingService
     }
 
     /** Přidá XP a případně zvedne level (umí víc levelů naráz) */
-    public function addXp(Profile $p, int $gain): void
+    public function addXp(Player $p, int $gain): void
     {
         $xp = $p->getXp() + max(0, $gain);
         $lvl = $p->getLevel();
@@ -28,7 +28,7 @@ class LevelingService
     }
 
     /** Kolik % do dalšího levelu */
-    public function percent(Profile $p): int
+    public function percent(Player $p): int
     {
         $need = $this->thresholdFor($p->getLevel());
         return (int) floor(($p->getXp() / max(1, $need)) * 100);

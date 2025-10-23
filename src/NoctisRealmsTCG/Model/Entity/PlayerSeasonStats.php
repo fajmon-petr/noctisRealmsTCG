@@ -6,8 +6,8 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Model\Entity\Faction;
 
 #[ORM\Entity]
-#[ORM\Table(name: "player_season_stats",
-    uniqueConstraints: [new ORM\UniqueConstraint(name: "uniq_profile_faction_season", columns: ["profile_id", "faction_id", "season_id"])]
+#[ORM\Table(name: "player_season_stat",
+    uniqueConstraints: [new ORM\UniqueConstraint(name: "uniq_player_faction_season", columns: ["player_id", "faction_id", "season_id"])]
 )]
 class PlayerSeasonStats
 {
@@ -16,9 +16,9 @@ class PlayerSeasonStats
     #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer")]
     private int $id;
 
-    #[ORM\ManyToOne(targetEntity: Profile::class)]
-    #[ORM\JoinColumn(name: "profile_id", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
-    private Profile $profile;
+    #[ORM\ManyToOne(targetEntity: Player::class)]
+    #[ORM\JoinColumn(name: "player_id", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
+    private Player $player;
 
     #[ORM\ManyToOne(targetEntity: Faction::class)]
     #[ORM\JoinColumn(name: "faction_id", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
@@ -52,14 +52,14 @@ class PlayerSeasonStats
     #[ORM\Column(type: "integer", options: ["unsigned" => true])]
     private int $legendary = 0;
 
-    public function getProfile(): Profile
+    public function getPlayer(): Player
     {
-        return $this->profile;
+        return $this->player;
     }
 
-    public function setProfile(Profile $profile): void
+    public function setPlayer(Player $player): void
     {
-        $this->profile = $profile;
+        $this->player = $player;
     }
 
     public function getFaction(): Faction

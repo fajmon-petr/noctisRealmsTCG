@@ -2,6 +2,7 @@
 
 namespace App\Presenters;
 
+use App\Model\Entity\Achievement;
 use App\Model\Entity\Faction;
 use App\Model\Modules\Faction\FactionFacade;
 use Doctrine\ORM\EntityManagerInterface;
@@ -9,11 +10,13 @@ use Nette;
 
 final class FactionPresenter extends BasePresenter
 {
-    public function __construct(
-        EntityManagerInterface $em,
-        private FactionFacade $factionFacade,
-    ) {
+    public EntityManagerInterface $em;
+
+    private FactionFacade $factionFacade;
+
+    public function __construct(EntityManagerInterface $em, FactionFacade $factionFacade) {
         parent::__construct($em);
+        $this->factionFacade = $factionFacade;
     }
 
     /**
@@ -86,7 +89,8 @@ final class FactionPresenter extends BasePresenter
         ];
 
         $factions = $this->factionFacade->getMainFactions();
-        
+        $achievements = $this->factionFacade->getFactionAchievements();
+
         // 7) předání do šablony
         $this->template->factions      = $factions;
         $this->template->faction       = $faction;
@@ -94,5 +98,35 @@ final class FactionPresenter extends BasePresenter
         $this->template->f             = $f;               // pro tvoje rarity karty a body v záhlaví
         $this->template->seasonFaction = $seasonFaction;   // pro „brand“ v hlavičce sezóny
         //$this->template->last          = $last;            // tabulka posledních příspěvků apod.
+        $this->template->achievements  = $achievements;
+        $this->template->xp            = 0;
+        $this->template->xpToNext      = 100;
+        $this->template->nextLevel     = 2;
+        $this->template->belongsToFaction = true;
+        $this->template->dustGoal     = 1000;
+        $this->template->dustProgress     = 100;
+        $this->template->cardsGoal     = 1000;
+        $this->template->cardsProgress     = 100;
+
+        $this->template->factionCards = [
+            'common' => 12,
+            'uncommon' => 7,
+            'rare' => 4,
+            'epic' => 2,
+            'legendary' => 1,
+        ];
+    }
+
+    public function actionAddDust(string $slug): void
+    {
+        $amount = (int) $this->getHttpRequest()->getPost('dust');
+        if ($amount <= 0) {
+            $this->flashMessage('Zadej kladné množství Dustu.', 'warning');
+            $this->redirect('default', $slug);
+        }
+
+        // ... logika přidání dustu do frakce ...
+        $this->flashMessage("Přispěl jsi $amount Dust.", 'success');
+        $this->redirect('default', $slug);
     }
 }

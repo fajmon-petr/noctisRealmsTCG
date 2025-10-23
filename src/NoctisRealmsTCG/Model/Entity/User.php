@@ -12,7 +12,7 @@ use App\Utils\MagicAccessors;
  * @property Role|null $role
  */
 #[ORM\Entity]
-#[ORM\Table(name: "users")]
+#[ORM\Table(name: "user")]
 class User
 {
     use MagicAccessors;

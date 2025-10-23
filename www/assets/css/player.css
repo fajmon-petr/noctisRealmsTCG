@@ -1,7 +1,7 @@
 /* =========================
-   PROFILE / SEASON SKIN (v1)
+   PLAYER / SEASON SKIN (v1)
    - funguje s původním markupem:
-     .nr-profile-skin f-{$currentSlug}
+     .nr-player-skin f-{$currentSlug}
      .nr-season-tab   f-{$slug}
    - taby neutrální (fialové)
    ========================= */
@@ -51,12 +51,12 @@
    Panely / boxy / grid (profil)
    ========================= */
 
-.nr-profile-skin{
+.nr-player-skin{
   --accent: var(--faction);
   --accent-line: color-mix(in srgb, var(--accent) 100%, white 60%);
   --accent-glow: color-mix(in srgb, var(--accent) 100%, white 70%);
 }
-.nr-profile-skin .nr-glass{
+.nr-player-skin .nr-glass{
   background: rgba(15,10,25,.55);
   border: 1px solid color-mix(in oklab, var(--faction) 30%, #ffffff10);
   box-shadow:

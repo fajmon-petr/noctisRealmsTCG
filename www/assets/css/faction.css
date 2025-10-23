@@ -1,15 +1,19 @@
+/* =========== Noctis Realms TCG – Faction (bootstrap layout, čisté) =========== */
 :root{
   --fx-r:16px;
   --fx-text:#e9e9ee;
   --fx-muted:#a7a9b4;
-  --fx-panel:rgba(255,255,255,.03);
-  --fx-border:rgba(255,255,255,.08);
+  --fx-panel:rgba(255,255,255,.04);
+  --fx-border:rgba(255,255,255,.10);
+  --accent:#8b5cf6;
+  --accent-line: color-mix(in oklab, var(--accent) 35%, #ffffff10);
 }
 
-/* Základní obal s frakčním glow */
+/* Wrapper */
 .page-faction .fx-wrap{
   padding:18px;
   border-radius:var(--fx-r);
+  color:var(--fx-text);
   background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
   box-shadow:
     inset 0 0 0 1px var(--accent-line),
@@ -17,272 +21,212 @@
     0 0 18px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
-/* === GRID – 3 SLOUPCE, BANNER PŘES VŠECHNY === */
-.page-faction .fx-grid{
-  display:grid;
-  grid-template-columns:340px 1fr 1.2fr;    /* levý | střed | pravý */
-  grid-template-rows:auto 1fr;
-  grid-template-areas:
-    "banner banner banner"
-    "links  stats   leader";
-  gap:16px;
-  color:var(--fx-text);
-}
-
-/* --- Malý kompaktní banner --- */
+/* ---------- Banner ---------- */
 .page-faction .fx-banner{
-  grid-area:banner;
   position:relative;
   min-height:92px;
   border-radius:var(--fx-r);
   overflow:hidden;
-  border:1px solid color-mix(in oklab, var(--accent) 30%, #ffffff10);
+  border:1px solid var(--accent-line);
   background:linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.10));
   box-shadow:
     inset 0 0 0 1px var(--accent-line),
     0 10px 28px rgba(0,0,0,.32),
     0 0 14px color-mix(in srgb, var(--accent) 38%, transparent);
 }
-
 .page-faction .fx-banner-bg{
-  position:absolute;
-  inset:0;
-  background-size:cover;
-  background-position:center;
-  opacity:.85;
-  filter:saturate(.95) brightness(.9);
+  position:absolute; inset:0;
+  background-size:cover; background-position:center;
+  opacity:.85; filter:saturate(.95) brightness(.9);
 }
-
 .page-faction .fx-banner-inner{
-  position:relative;
-  z-index:1;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:12px 16px;
+  position:relative; z-index:1;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:16px; padding:12px 16px;
 }
-
-/* Levá část banneru */
-.page-faction .fx-left{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  min-width:260px;
-}
-
+.page-faction .fx-left{ display:flex; gap:12px; align-items:center; min-width:260px; }
 .page-faction .fx-level{
-  width:36px;
-  height:36px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:800;
-  color:#fff;
-  background:var(--accent);
-  border:1px solid color-mix(in oklab, var(--accent) 40%, white 12%);
-  box-shadow:0 8px 20px color-mix(in oklab, var(--accent) 26%, transparent);
+  width:36px; height:36px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800; color:#fff; background:var(--accent);
 }
-
-.page-faction .fx-fname{
-  font-weight:800;
-  letter-spacing:.2px;
+.page-faction .fx-fname{ font-weight:800; letter-spacing:.2px; }
+.page-faction .fx-season{ color:#bfc2d3; font-size:.9rem; }
+.page-faction .fx-center{ display:flex; gap:10px; align-items:center; justify-content:center; min-width:280px; }
+.page-faction .fx-pill{
+  min-width:120px; padding:10px 14px; border-radius:12px; text-align:center;
+  border:2px solid color-mix(in oklab, var(--accent) 65%, white 6%);
+  background:linear-gradient(180deg, color-mix(in oklab, var(--accent) 10%, #0f0a19), rgba(255,255,255,.04));
 }
-
-.page-faction .fx-season{
-  color:#bfc2d3;
-  font-size:.9rem;
-}
-
-/* Pravá část banneru */
-.page-faction .fx-right{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-end;
-  gap:6px;
-  min-width:320px;
-}
-
+.page-faction .fx-label{ color:var(--fx-muted); font-size:.85rem; }
+.page-faction .fx-val{ font-weight:800; font-size:20px; margin-top:2px; }
+.page-faction .fx-right{ display:flex; flex-direction:column; gap:6px; min-width:280px; align-items:flex-end; }
 .page-faction .fx-xpbar{
-  width:min(520px, 42vw);
-  height:10px;
-  border-radius:999px;
-  overflow:hidden;
+  width:min(520px, 42vw); height:10px; border-radius:999px; overflow:hidden;
   background:rgba(255,255,255,.12);
   border:1px solid color-mix(in oklab, var(--accent) 28%, white 6%);
 }
-
 .page-faction .fx-xpbar .bar{
-  width:var(--pct,0%);
-  height:100%;
+  width:var(--pct,0%); height:100%;
   background:linear-gradient(90deg,
     color-mix(in oklab, var(--accent) 85%, white 6%),
     color-mix(in oklab, var(--accent) 55%, white 18%));
   box-shadow:0 0 14px color-mix(in oklab, var(--accent) 30%, transparent);
 }
+.page-faction .fx-xp-meta{ font-size:.9rem; color:#d6d7e3; }
 
-.page-faction .fx-xp-meta{
-  font-size:.9rem;
-  color:#d6d7e3;
+/* ---------- Karty (1. řádek, centrované) ---------- */
+.cards-row{
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  gap:28px;
+  margin: 8px 6px 6px;
+  flex-wrap:wrap; /* na menších šířkách dovolí zalomení */
 }
-
-/* --- Levý sloupec: odkazy --- */
-.page-faction .fx-links{
-  grid-area:links;
-  padding:12px;
-  border-radius:var(--fx-r);
-  background:var(--fx-panel);
-  border:1px solid var(--fx-border);
-  display:grid;
-  gap:10px;
-}
-
-.page-faction .fx-links a{
-  display:block;
-  padding:10px 12px;
-  border-radius:12px;
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.10);
-  color:var(--fx-text);
-  text-decoration:none;
-}
-
-.page-faction .fx-links a:hover{
-  background:rgba(255,255,255,.08);
-}
-
-/* --- Střed: statistiky --- */
-.page-faction .fx-stats{
-  grid-area:stats;
-  display:grid;
-  grid-template-columns:repeat(2,minmax(220px,1fr));
-  gap:16px;
-}
-
-.page-faction .fx-pill{
-  padding:12px 14px;
+.rarity-card{
+  position:relative;
+  overflow:hidden;
   border-radius:14px;
-  border:2px solid color-mix(in oklab, var(--accent) 65%, white 6%);
-  background:linear-gradient(180deg,
-    color-mix(in oklab, var(--accent) 10%, #0f0a19) 0%,
-    rgba(255,255,255,.04) 100%);
-  box-shadow:
-    0 0 0 1px color-mix(in oklab, var(--accent) 35%, transparent),
-    0 8px 20px color-mix(in oklab, var(--accent) 16%, transparent);
+  width: clamp(160px, 18vw, 240px);
+  aspect-ratio: 2 / 3;
+  transition: transform .15s ease, filter .15s ease;
+}
+.rarity-card:hover{ transform:translateY(-3px); filter:brightness(1.03); }
+.rc-img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+/* Číslo na kartě – stejné jako v profilu */
+.rc-value{
+  position:absolute; left:50%; bottom:13%; transform:translateX(-50%);
+  font-family:"Cinzel", ui-serif, Georgia, "Times New Roman", serif;
+  font-weight:800; letter-spacing:.02em; line-height:1;
+  font-size:clamp(30px, 6.4vw, 56px); color:#f4efe6;
+  -webkit-text-stroke:1px rgba(0,0,0,.25);
+  text-shadow:-1px -1px 0 #00000099, 1px 1px 0 #ffffff66, 0 2px 6px #0006;
+}
+.rarity-card.light .rc-value{
+  color:#3e3e3e; -webkit-text-stroke:1px rgba(255,255,255,.25);
+  text-shadow:-1px -1px 0 #ffffffb3, 1px 1px 0 #00000055, 0 2px 6px #0006;
+}
+.rarity-card.common    .rc-value{ color:#72736F; }
+.rarity-card.uncommon  .rc-value{ color:#D7D3CE; }
+.rarity-card.rare      .rc-value{ color:#27475B; }
+.rarity-card.epic      .rc-value{ color:#62436D; }
+.rarity-card.legendary .rc-value{ color:#B47613; }
+
+/* ---------- Boxy (achievements / contrib) ---------- */
+.fx-card{
+  border-radius: var(--fx-r);
+  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+  border: 1px solid var(--fx-border);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+  padding: 12px 14px;
+}
+.fx-card-title{ font-weight:700; margin-bottom:8px; }
+.fx-list{ margin:0; padding-left:18px; }
+.fx-list li{ margin:6px 0; }
+.fx-meta{ font-size:.9rem; color:#d6d7e3; margin-top:6px; }
+
+.fx-progress{
+  height:10px; border-radius:999px; overflow:hidden;
+  background: rgba(255,255,255,.1);
+  border: 1px solid color-mix(in oklab, var(--accent) 28%, white 6%);
+}
+.fx-progress .bar{
+  width: var(--pct, 0%); height:100%;
+  background: linear-gradient(90deg,
+    color-mix(in oklab, var(--accent) 85%, white 6%),
+    color-mix(in oklab, var(--accent) 55%, white 18%));
+  box-shadow: 0 0 14px color-mix(in oklab, var(--accent) 30%, transparent);
 }
 
-.page-faction .fx-label{
-  color:var(--fx-muted);
-  font-size:.9rem;
-}
-
-.page-faction .fx-val{
-  font-weight:800;
-  font-size:22px;
-  margin-top:2px;
-}
-
-.page-faction .fx-box{
-  padding:12px 14px;
-  border-radius:14px;
-  background:var(--fx-panel);
-  border:1px solid var(--fx-border);
-}
-
-.page-faction .fx-num{
-  font-weight:800;
-  font-size:20px;
-}
-
-/* --- Pravý sloupec: leaderboard --- */
+/* ---------- Leaderboard (dole, uprostřed) ---------- */
 .page-faction .fx-leader{
-  grid-area:leader;
   border-radius:var(--fx-r);
   background:var(--fx-panel);
   border:1px solid var(--fx-border);
   overflow:hidden;
 }
-
-.page-faction .fx-leader-head{
-  padding:14px 16px 10px;
-}
-
-.page-faction .fx-table{
-  overflow:auto;
-}
-
-.page-faction .fx-table table{
-  width:100%;
-  border-collapse:separate;
-  border-spacing:0;
-}
-
+.page-faction .fx-leader-head{ padding:14px 16px 10px; }
+.page-faction .fx-table{ overflow:auto; }
+.page-faction .fx-table table{ width:100%; border-collapse:separate; border-spacing:0; }
 .page-faction .fx-table thead th{
-  position:sticky;
-  top:0;
-  z-index:1;
+  position:sticky; top:0; z-index:1;
   background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
   border-bottom:1px solid rgba(255,255,255,.08);
-  text-align:left;
-  padding:12px 14px;
+  text-align:left; padding:12px 14px;
+}
+.page-faction .fx-table tbody td{ padding:12px 14px; border-top:1px solid rgba(255,255,255,.06); }
+.page-faction .fx-table .right{ text-align:right; }
+.page-faction .fx-table .empty{ text-align:center; color:var(--fx-muted); padding:24px 12px; }
+
+/* ---------- Responsivita drobnosti ---------- */
+@media (max-width: 1200px){
+  .page-faction .fx-right{ align-items:flex-start; min-width:0; }
+  .page-faction .fx-xpbar{ width:100%; }
 }
 
-.page-faction .fx-table tbody td{
-  padding:12px 14px;
-  border-top:1px solid rgba(255,255,255,.06);
+.fx-card .btn-primary {
+  background: var(--accent);
+  border: none;
+  font-weight: 600;
+}
+.fx-card .btn-primary:hover {
+  filter: brightness(1.1);
+}
+.fx-card input.form-control {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.15);
+  color: #fff;
+}
+.fx-card input.form-control::placeholder {
+  color: #bbb;
 }
 
-.page-faction .fx-table .right{
-  text-align:right;
+/* === Dust inline form (v .fx-card) === */
+.fx-card .input-group{
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--fx-border);
+  border-radius: 12px;
+  overflow: hidden;           /* zarovná rohy s tlačítkem */
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
 }
 
-.page-faction .fx-table .empty{
-  text-align:center;
-  color:var(--fx-muted);
-  padding:24px 12px;
+.fx-card .form-control{
+  background: transparent;    /* bere podklad z .input-group */
+  border: 0;
+  color: #fff;
+  padding: 10px 12px;
+}
+.fx-card .form-control::placeholder{ color: #b8bcc9; }
+.fx-card .form-control:focus{
+  box-shadow: none;
+  background: rgba(255,255,255,.03);
 }
 
-/* --- Responsivita: stack pod sebe --- */
-@media (max-width:1200px){
-  .page-faction .fx-grid{
-    grid-template-columns:1fr;
-    grid-template-rows:auto auto auto auto;
-    grid-template-areas:
-      "banner"
-      "links"
-      "stats"
-      "leader";
-  }
-  .page-faction .fx-right{
-    align-items:flex-start;
-    width:100%;
-  }
-  .page-faction .fx-xpbar{
-    width:100%;
-  }
+/* tlačítko “Přispět” */
+.fx-card .btn-primary{
+  background: linear-gradient(135deg,
+    color-mix(in oklab, var(--accent) 92%, white 12%),
+    color-mix(in oklab, var(--accent) 70%, black 6%)
+  );
+  border: 0;
+  font-weight: 700;
+  padding: 8px 14px;
+  box-shadow: 0 8px 20px color-mix(in oklab, var(--accent) 28%, transparent);
+}
+.fx-card .btn-primary:hover{
+  filter: brightness(1.06);
+  box-shadow: 0 10px 26px color-mix(in oklab, var(--accent) 36%, transparent);
+}
+.fx-card .btn-primary:active{ transform: translateY(1px); }
+
+/* kompaktnější input-group-sm */
+.fx-card .input-group-sm>.form-control,
+.fx-card .input-group-sm>.btn{ line-height: 1.2; }
+
+/* když budeš chtít chybový stav */
+.fx-card .form-control.is-invalid{
+  box-shadow: inset 0 0 0 1px #ef444466;
 }
 
-/* ============== Frakční taby ============== */
-.fx-tabs{ display:flex; gap:10px; flex-wrap:wrap; }
-.fx-tab{
-  padding:8px 14px; border-radius:12px;
-  background: var(--tab-bg);             /* z common.css */
-  border:1px solid var(--tab-border);
-  color:#e6e2f3; text-decoration:none;
-  transition:.2s ease;
-}
-.fx-tab:hover{ background: color-mix(in oklab, var(--tab-bg) 70%, white 30%); border-color: var(--tab-border-active); }
-.fx-tab.active{
-  background: var(--tab-bg-active);
-  border-color: var(--tab-border-active);
-  color:#fff; box-shadow:0 6px 18px rgba(80,46,120,.35);
-}
-
-
-
-/* b) leaderboard na výšku a tabulka se roluje */
-.page-faction .fx-leader{ display:flex; flex-direction:column; min-height: 420px; }
-.page-faction .fx-table{ flex:1; min-height: 0; overflow:auto; }
-
-/* c) pro jistotu – standardizuj výšku banneru, zbytek krásně naváže pod */
-.page-faction .fx-banner{ min-height: 120px; }

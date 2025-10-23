@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /** @property-read int $id */
 #[ORM\Entity]
-#[ORM\Table(name: "roles")]
+#[ORM\Table(name: "role")]
 class Role
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer")]

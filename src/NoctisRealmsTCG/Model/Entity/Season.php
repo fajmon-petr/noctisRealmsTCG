@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(
-    name: "seasons",
+    name: "season",
     uniqueConstraints: [new ORM\UniqueConstraint(name: "uniq_season_number", columns: ["number"])],
     indexes: [new ORM\Index(name: "idx_season_dates", columns: ["start_at", "end_at"])]
 )]

@@ -15,7 +15,7 @@ use App\Utils\MagicAccessors;
  * @property int $factionPoints
  */
 #[ORM\Entity]
-#[ORM\Table(name: "factions")]
+#[ORM\Table(name: "faction")]
 class Faction
 {
     use MagicAccessors;

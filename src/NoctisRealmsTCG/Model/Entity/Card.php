@@ -5,7 +5,7 @@ namespace App\Model\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'cards')]
+#[ORM\Table(name: 'card')]
 class Card
 {
     #[ORM\Id]

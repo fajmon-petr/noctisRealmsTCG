@@ -1,120 +1,233 @@
 {block head}
   {include parent}
-  {* Důležité: na stránce frakce NEZATAHUJ profile.css *}
   <link rel="stylesheet" href="{$basePath}/assets/css/faction.css?v={$assetsVer}">
 {/block}
 
 {block content}
-{var $slug = $faction?->slug ?? 'noctis'}
-{var $xp = $xp ?? 0}
-{var $xpToNext = $xpToNext ?? 100}
-{var $nextLevel = $nextLevel ?? (($factionLevel ?? 1) + 1)}
-{var $xpPct = $xpPct ?? (min(100, (int) round(($xp / max(1,$xpToNext))*100)))}
+{* ==== očekávané proměnné z presenteru ====
+   $faction, $season, $seasonFaction
+   $factions
+   $factionLevel, $xp, $xpToNext, $xpPct, $nextLevel
+   $position, $seasonStats, $leaderboard, $leaderboardTotal
+   $belongsToFaction
+   $factionCards (common/uncommon/rare/epic/legendary)
+   $achievementsUpcoming
+   $dustProgress, $dustGoal, $cardsProgress, $cardsGoal
+*}
 
-{* --- TABS: frakce --- *}
-{var $currentSlug = $faction->getSlug()}
-<div class="fx-tabs mb-3">
-  <a n:foreach="$factions as $fa"
-     n:href="Faction:default slug => $fa->getSlug()"
-     n:class="'fx-tab', $currentSlug === $fa->getSlug() ? 'active'">
-     {$fa->getName()}
-  </a>
+{var $slug = $faction?->slug ?? 'noctis'}
+{var $xpPct = $xpPct ?? (min(100, (int) round(($xp / max(1,$xpToNext))*100)))}
+{var $pointsTotal = $seasonStats['pointsTotal'] ?? 0}
+
+<!-- Frakční taby -->
+<div class="fx-tabs mb-2">
+  <div class="nav nav-pills">
+    <a n:foreach="$factions as $fac"
+       n:href="Faction:default slug => $fac->getSlug()"
+       n:class="'nav-link', 'f-' . $fac->getSlug(), ($faction?->slug === $fac->getSlug()) ? active">
+      {$fac->getName()}
+    </a>
+  </div>
 </div>
 
 <div class="page-faction f-{$slug}">
-  <div class="fx-wrap">
-    <div class="fx-grid">
+  <div class="fx-wrap container-fluid">
 
-      <!-- KOMPAKTNÍ BANNER přes 3 sloupce -->
-      <div class="fx-banner fx-compact">
-        <div class="fx-banner-bg" style="background-image:url('{$basePath}/assets/factions/{$seasonFaction->slug}.png')"></div>
+    <!-- === Banner === -->
+    <div class="fx-banner mb-4">
+      <div class="fx-banner-bg" style="background-image:url('{$basePath}/assets/factions/{$seasonFaction->slug}.png')"></div>
+      <div class="fx-banner-inner">
+        <div class="fx-left">
+          <div class="fx-level">{$factionLevel ?? 1}</div>
+          <div class="fx-titles">
+            <div class="fx-fname">{$faction?->name}</div>
+            <div class="fx-season">
+              {if $season}
+                Sezóna: {$season->name}
+                {if $season->startAt}&nbsp;•&nbsp;{$season->startAt|date:'j.n.Y'} – {if $season->endAt}{$season->endAt|date:'j.n.Y'}{else}současnost{/if}{/if}
+              {else}
+                Mimo sezónu
+              {/if}
+            </div>
+          </div>
+        </div>
+        <div class="fx-center">
+          <div class="fx-pill">
+            <div class="fx-label">Pozice</div>
+            <div class="fx-val">{ifset $position}#{$position}{else}—{/ifset}</div>
+          </div>
+          <div class="fx-pill">
+            <div class="fx-label">Body celkem</div>
+            <div class="fx-val">{$pointsTotal|number:0,',',' '}</div>
+          </div>
+        </div>
+        <div class="fx-right">
+          <div class="fx-xpbar" style="--pct: {$xpPct}%"><div class="bar"></div></div>
+          <div class="fx-xp-meta">{$xp} / {$xpToNext} XP • další úroveň {$nextLevel}</div>
+        </div>
+      </div>
+    </div>
 
-        <div class="fx-banner-inner">
-          <div class="fx-left">
-            <div class="fx-level">{$factionLevel ?? 1}</div>
-            <div class="fx-titles">
-              <div class="fx-fname">{$faction?->name}</div>
-              <div class="fx-season">
-                Sezóna: {$season?->name ?? '—'}
-                {if $season?->startAt}&nbsp;•&nbsp;{$season->startAt|date:'j.n.Y'} – {if $season?->endAt}{$season->endAt|date:'j.n.Y'}{else}současnost{/if}{/if}
+    {***************************************
+     * 1. ŘÁDEK:  col-3 (vlevo) ovládání  |
+     *            col-9 (vpravo) karty     |
+     ***************************************}
+    <div class="row align-items-start mb-5">
+      <!-- VLEVO: přispět Dust / Karty / XP -->
+      <div class="col-lg-3 col-md-4 mb-4 mb-lg-0">
+        {if $belongsToFaction}
+          <div class="fx-card mb-3">
+            <div class="fx-card-title d-flex justify-content-between align-items-center">
+              <span>Přidat Dust</span>
+            </div>
+
+            {* Volitelně odkomentuj až bude akce hotová
+            <form n:action="Faction:dust slug=>$slug" method="post" class="mt-2">
+              {csrfInput}
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Kolik Dust?</span>
+                <input type="number" class="form-control" name="amount" min="1" step="1" placeholder="např. 100">
+                <button class="btn btn-primary" type="submit">Přispět</button>
+              </div>
+            </form>
+            *}
+
+            <div class="mt-2">
+              <div class="fx-progress" style="--pct:{= min(100, (int)round(($dustProgress / max(1,$dustGoal))*100))}%">
+                <div class="bar"></div>
+              </div>
+              <div class="fx-meta">
+                {$dustProgress|number:0,',',' '} / {$dustGoal|number:0,',',' '} Dust • přidává XP do frakce
               </div>
             </div>
           </div>
 
-          <div class="fx-right">
-            <div class="fx-xpbar" style="--pct: {$xpPct}%">
-              <div class="bar"></div>
+          <div class="fx-card mb-3">
+            <div class="fx-card-title">Přispět karty</div>
+
+            {* <form n:action="Faction:contributeCards slug=>$slug" method="post">
+                 {csrfInput}
+                 <button class="btn btn-primary btn-sm" type="submit">Přidat karty</button>
+               </form> *}
+
+            <div class="mt-2">
+              <div class="fx-progress" style="--pct:{= min(100, (int)round(($cardsProgress / max(1,$cardsGoal))*100))}%">
+                <div class="bar"></div>
+              </div>
+              <div class="fx-meta">
+                {$cardsProgress|number:0,',',' '} / {$cardsGoal|number:0,',',' '} karet • přidává XP do frakce
+              </div>
             </div>
-            <div class="fx-xp-meta">{$xp} / {$xpToNext} XP • další úroveň {$nextLevel}</div>
+          </div>
+
+          <div class="fx-card">
+          <div class="fx-card-title">Přispět Dust</div>
+
+          <form action="{link Faction:addDust, slug => $slug}" method="post" class="mt-2">
+            <div class="input-group input-group-sm mb-3">
+              <input type="number"
+                    name="dust"
+                    class="form-control"
+                    min="1"
+                    placeholder="Zadej množství Dust"
+                    required>
+              <button class="btn btn-primary" type="submit">Přispět</button>
+            </div>
+          </form>
+        </div>
+        {else}
+          <div class="fx-card">
+            <div class="fx-card-title">Přispívání</div>
+            <div class="fx-meta">Pouze pro členy frakce <strong>{$faction?->name}</strong>.</div>
+          </div>
+        {/if}
+      </div>
+
+      <!-- VPRAVO: karty -->
+      <div class="col-lg-9 col-md-8">
+        <div class="cards-row">
+          <div class="rarity-card common light">
+            <img class="rc-img" src="{$basePath}/assets/cards/common-back.png" alt="Common">
+            <div class="rc-value">{$factionCards['common'] ?? 0}</div>
+          </div>
+          <div class="rarity-card uncommon light">
+            <img class="rc-img" src="{$basePath}/assets/cards/uncommon-back.png" alt="Uncommon">
+            <div class="rc-value">{$factionCards['uncommon'] ?? 0}</div>
+          </div>
+          <div class="rarity-card rare dark">
+            <img class="rc-img" src="{$basePath}/assets/cards/rare-back.png" alt="Rare">
+            <div class="rc-value">{$factionCards['rare'] ?? 0}</div>
+          </div>
+          <div class="rarity-card epic dark">
+            <img class="rc-img" src="{$basePath}/assets/cards/epic-back.png" alt="Epic">
+            <div class="rc-value">{$factionCards['epic'] ?? 0}</div>
+          </div>
+          <div class="rarity-card legendary dark">
+            <img class="rc-img" src="{$basePath}/assets/cards/legendary-back.png" alt="Legendary">
+            <div class="rc-value">{$factionCards['legendary'] ?? 0}</div>
           </div>
         </div>
       </div>
-
-      <!-- D) Odkazy pod XP -->
-      <div class="fx-links">
-        <a n:href="Faction:history slug=>$slug">Historie</a>
-        <a n:href="Faction:members slug=>$slug">Seznam hráčů</a>
-        {*<a n:href="Card:submit faction=>$slug">Přispět karty</a>*}
-        <a n:href="Faction:dust slug=>$slug">Přispět Dust</a>
-      </div>
-
-      <!-- STŘED: statistiky -->
-      <div class="fx-stats">
-        <div class="fx-pill"><div class="fx-label">Pozice</div><div class="fx-val">{$position ?? '—'}</div></div>
-        <div class="fx-pill"><div class="fx-label">Body celkem</div><div class="fx-val">{$stats['pointsTotal'] ?? 0}</div></div>
-        <div class="fx-box"><div class="fx-label">Počet koupených balíčků</div><div class="fx-num">{$packsBought ?? 0}</div></div>
-        <div class="fx-box"><div class="fx-label">Počet karet</div><div class="fx-num">{$cardsCount ?? 0}</div></div>
-      </div>
-
-       <!-- PRAVÝ: leaderboard -->
-      <div class="fx-leader">
-  <div class="fx-leader-head">
-    <div class="d-flex justify-content-between align-items-center">
-      <div>
-        <div class="fx-title">Žebříček frakce</div>
-        <div class="fx-sub">Hráči seřazení podle bodů</div>
-      </div>
-
-      {* jednoduchá paginace – 20 položek na stránku *}
-      {var $page = (int)($presenter->getParameter('page') ?? 1)}
-      {var $perPage = 20}
-      {var $total = $leaderboardTotal ?? count($leaderboard ?? [])}
-      {var $pages = max(1, (int)ceil($total / $perPage))}
-      <nav class="fx-pager" aria-label="Leaderboard pagination">
-        <a n:href="this page => max(1, $page-1)" class="fx-btn" n:attr="aria-disabled: $page===1">‹</a>
-        <span class="fx-pager-cur">{$page}/{$pages}</span>
-        <a n:href="this page => min($pages, $page+1)" class="fx-btn" n:attr="aria-disabled: $page===$pages">›</a>
-      </nav>
     </div>
-  </div>
 
-  <div class="fx-table">
-    <table>
-      <thead>
-      <tr>
-        <th style="width:84px">Pořadí</th>
-        <th>Jméno</th>
-        <th class="right" style="width:120px">Body</th>
-      </tr>
-      </thead>
-      <tbody>
-      {if isset($leaderboard) && $leaderboard}
-        {var $offset = ($page-1)*$perPage}
-        {foreach array_slice($leaderboard, $offset, $perPage) as $i => $row}
-          <tr>
-            <td>{= $offset + $i + 1}</td>
-            <td>{$row['name']}</td>
-            <td class="right">{$row['points']|number:0,',',' '}</td>
-          </tr>
-        {/foreach}
-      {else}
-        <tr><td colspan="3" class="empty">Zatím žádná data.</td></tr>
-      {/if}
-      </tbody>
-    </table>
-  </div>
+    {*******************************************
+     * 2. ŘÁDEK:  vlevo achievementy (col-6)
+     *            vpravo leaderboard (col-6)
+     *******************************************}
+    <div class="row gy-4">
+      <!-- Achievementy -->
+      <div class="col-lg-6">
+        <div class="fx-card h-100">
+          <div class="fx-card-title">Možné získat brzy</div>
+          <ul class="fx-list">
+            {foreach array_slice($achievementsUpcoming ?? [], 0, 5) as $a}
+              <li>
+                <strong>{$a->name}</strong> – {$a->points} bodů<br>
+                <small>{$a->description}</small>
+              </li>
+            {/foreach}
+            {if empty($achievementsUpcoming)}
+              <li><small>Brzy doplníme návrhy na rychlé body.</small></li>
+            {/if}
+          </ul>
+        </div>
       </div>
-    </div><!-- /fx-grid -->
-  </div><!-- /fx-wrap -->
+
+      <!-- Leaderboard -->
+      <div class="col-lg-6">
+        <div class="fx-leader h-100">
+          <div class="fx-leader-head">
+            <div class="fx-title">Žebříček frakce</div>
+            <div class="fx-sub">Hráči podle bodů</div>
+          </div>
+          <div class="fx-table">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:84px">Pořadí</th>
+                  <th>Jméno</th>
+                  <th class="right" style="width:120px">Body</th>
+                </tr>
+              </thead>
+              <tbody>
+                {if isset($leaderboard) && $leaderboard}
+                  {foreach $leaderboard as $i => $row}
+                    <tr>
+                      <td>{$i + 1}</td>
+                      <td>{$row['name']}</td>
+                      <td class="right">{$row['points']|number:0,',',' '}</td>
+                    </tr>
+                  {/foreach}
+                {else}
+                  <tr><td colspan="3" class="empty">Zatím žádná data.</td></tr>
+                {/if}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /container -->
 </div><!-- /page-faction -->
 {/block}

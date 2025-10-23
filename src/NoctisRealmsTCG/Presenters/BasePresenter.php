@@ -4,7 +4,7 @@ namespace App\Presenters;
 
 use Nette\Application\UI\Presenter;
 
-use App\Model\Entity\Profile;
+use App\Model\Entity\Player;
 use Doctrine\ORM\EntityManagerInterface;
 
 abstract class BasePresenter extends Presenter
@@ -26,9 +26,9 @@ abstract class BasePresenter extends Presenter
 
         if ($this->user->isLoggedIn()) {
             // najdi profil přihlášeného uživatele
-            $profile = $this->em->getRepository(Profile::class)
+            $player = $this->em->getRepository(Player::class)
                 ->findOneBy(['user' => $this->user->getId()]);
-            $this->template->moonDust = $profile?->getMoonDust() ?? 0;
+            $this->template->moonDust = $player?->getMoonDust() ?? 0;
         }
     }
 }

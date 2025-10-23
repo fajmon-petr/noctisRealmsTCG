@@ -15,7 +15,7 @@
 
 {var $presenterName = $presenter->name}
 {var $isFluid = in_array($presenterName, ['Faction','Shop'])}
-{var $hasRain = in_array($presenterName, ['Home','Profile','Faction','Shop'])}
+{var $hasRain = in_array($presenterName, ['Home','Player','Faction','Shop'])}
 
 {var $bodyClass = ($isFluid ? 'body-fluid' : 'page-fixed')
     . ($hasRain ? ' has-rain' : '')
@@ -55,7 +55,7 @@
 		<a n:href="Home:default" n:class="$presenter->isLinkCurrent('Home:*') ? active">Domů</a>
 		<a n:href="Faction:default" n:class="$presenter->isLinkCurrent('Faction:*') ? active" n:if="$user->isLoggedIn()">Frakce</a>
 		<a n:href="Shop:default" n:class="$presenter->isLinkCurrent('Shop:*') ? active" n:if="$user->isLoggedIn()">Obchod</a>
-		<a class="btn btn-ghost" n:href="Profile:default" n:if="$user->isLoggedIn()">Moje karta</a>
+		<a class="btn btn-ghost" n:href="Player:default" n:if="$user->isLoggedIn()">Moje karta</a>
 		<a n:href="Home:logout" n:if="$user->isLoggedIn()">Odhlásit</a>
 	</nav>
     </div>
@@ -79,7 +79,7 @@
 		{block content}{/block}
 	</main>
 
-	<footer class="footer container-fluid">
+	<footer class="footer container">
 		&copy; {=date('Y')} Noctis Realms TCG • <a href="#">Podmínky</a> • <a href="#">Soukromí</a>
 	</footer>
 

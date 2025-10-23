@@ -1,37 +1,29 @@
 <?php declare(strict_types=1);
 
-namespace App\Model\Modules\Profile;
+namespace App\Model\Modules\Player;
 
-use App\Model\Entity\PlayerSeasonStats;
-use App\Model\Entity\Profile;
-use App\Model\Entity\Season;
+use App\Model\Entity\Player;
 use App\Model\Entity\User;
-use Doctrine\Migrations\Exception\PlanAlreadyExecuted;
-use Doctrine\ORM\EntityManagerInterface;
 
-class ProfileFacade
+class PlayerFacade
 {
-    public function __construct(private EntityManagerInterface $em)
+    public function getOrCreateForUser(User $user): Player
     {
-    }
-
-    public function getOrCreateForUser(User $user): Profile
-    {
-        $repo = $this->em->getRepository(Profile::class);
-        /** @var Profile|null $p */
+        $repo = $this->em->getRepository(Player::class);
+        /** @var Player|null $p */
         $p = $repo->findOneBy(['user' => $user]);
         if ($p) {
             return $p;
         }
 
-        $p = new Profile();
+        $p = new Player();
         $p->setUser($user);
         $this->em->persist($p);
         $this->em->flush();
         return $p;
     }
 
-    public function setFactionBySlug(User $user, string $slug): Profile
+    public function setFactionBySlug(User $user, string $slug): Player
     {
         $repoF = $this->em->getRepository(\App\Model\Entity\Faction::class);
         /** @var \App\Model\Entity\Faction|null $faction */

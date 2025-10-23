@@ -19,8 +19,8 @@ use App\Utils\MagicAccessors;
  * @property string|null $avatar
  */
 #[ORM\Entity]
-#[ORM\Table(name: "profiles")]
-class Profile
+#[ORM\Table(name: "player")]
+class Player
 {
     use MagicAccessors;
 

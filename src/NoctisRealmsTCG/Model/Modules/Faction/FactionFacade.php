@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Model\Modules\Faction;
 
+use App\Model\Entity\Achievement;
 use App\Model\Entity\Faction;
 use App\Model\Entity\FactionSeasonStats;
 use App\Model\Entity\Season;
@@ -84,12 +85,22 @@ class FactionFacade
         ];
     }
 
-    public function getMainFactions() 
+    public function getMainFactions() : array
     {
         return $this->em->getRepository(Faction::class)->createQueryBuilder('f')
         ->where('f.slug != :neutral')
         ->setParameter('neutral', 'neutral')
         ->orderBy('f.id', 'ASC')
+        ->getQuery()
+        ->getResult();
+    }
+
+    public function getFactionAchievements(): array
+    {
+        return $this->em->getRepository(Achievement::class)->createQueryBuilder('a')
+        ->where('a.type = :type')
+        ->setParameter('type', 'faction')
+        ->orderBy('a.id', 'ASC')
         ->getQuery()
         ->getResult();
     }

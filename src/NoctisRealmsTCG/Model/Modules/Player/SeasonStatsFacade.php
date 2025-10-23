@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace App\Model\Modules\Profile;
+namespace App\Model\Modules\Player;
 
 use App\Model\Entity\PlayerSeasonStats;
-use App\Model\Entity\Profile;
+use App\Model\Entity\Player;
 use App\Model\Entity\Season;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\AbstractQuery;
@@ -22,14 +22,14 @@ class SeasonStatsFacade
   }
 
   public function addContribution(
-    int $profileId,
+    int $playerId,
     int $factionId,
     int $points,
     array $r = ['C' => 0, 'U' => 0, 'R' => 0, 'E' => 0, 'L' => 0],
     ?int $seasonId = null
   ): void {
-    $sql = "INSERT INTO player_season_stats
-          (profile_id,faction_id,season_id,points_total,cards_common,cards_uncommon,cards_rare,cards_epic,cards_legendary)
+    $sql = "INSERT INTO player_season_stat
+          (player_id,faction_id,season_id,points_total,cards_common,cards_uncommon,cards_rare,cards_epic,cards_legendary)
         VALUES (:p,:f,:s,:pts,:c,:u,:r,:e,:l)
         ON DUPLICATE KEY UPDATE
           points_total=points_total+VALUES(points_total),
@@ -39,7 +39,7 @@ class SeasonStatsFacade
           cards_epic=cards_epic+VALUES(cards_epic),
           cards_legendary=cards_legendary+VALUES(cards_legendary)";
     $this->db->executeStatement($sql, [
-      'p' => $profileId,
+      'p' => $playerId,
       'f' => $factionId,
       's' => $seasonId,
       'pts' => $points,
@@ -51,7 +51,7 @@ class SeasonStatsFacade
     ]);
   }
 
-  public function allSeasonsWithMyStats(Profile $profile): array
+  public function allSeasonsWithMyStats(Player $player): array
   {
     $qb = $this->em->createQueryBuilder();
 
@@ -80,16 +80,16 @@ class SeasonStatsFacade
         PlayerSeasonStats::class,
         'pss',
         'WITH',
-        'pss.season = s AND pss.profile = :profile'
+        'pss.season = s AND pss.player = :player'
       )
       ->leftJoin('pss.faction', 'f')
-      ->setParameter('profile', $profile)
+      ->setParameter('player', $player)
       ->orderBy('s.startAt', 'DESC');
 
     return $qb->getQuery()->getArrayResult();
   }
 
-  public function getLiveRank(int $profileId, int $seasonId)
+  public function getLiveRank(int $playerId, int $seasonId)
   {
     $repo = $this->em->getRepository(PlayerSeasonStats::class);
 
@@ -97,9 +97,9 @@ class SeasonStatsFacade
     $pts = $repo->createQueryBuilder('p')
       ->select('p.pointsTotal')
       ->where('IDENTITY(p.season) = :sid')
-      ->andWhere('IDENTITY(p.profile) = :pid')
+      ->andWhere('IDENTITY(p.player) = :pid')
       ->setParameter('sid', $seasonId)
-      ->setParameter('pid', $profileId)
+      ->setParameter('pid', $playerId)
       ->getQuery()
       ->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR);
 

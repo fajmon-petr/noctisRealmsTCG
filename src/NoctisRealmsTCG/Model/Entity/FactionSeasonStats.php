@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(
-    name: "faction_season_stats",
+    name: "faction_season_stat",
     uniqueConstraints: [new ORM\UniqueConstraint(name: "uniq_faction_season", columns: ["faction_id", "season_id"])]
 )]
 class FactionSeasonStats

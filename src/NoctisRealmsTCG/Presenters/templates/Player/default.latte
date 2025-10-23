@@ -1,26 +1,26 @@
 {block head}
   {include parent}
-  <link rel="stylesheet" href="{$basePath}/assets/css/profile.css?v={$assetsVer}">
+  <link rel="stylesheet" href="{$basePath}/assets/css/player.css?v={$assetsVer}">
 {/block}
 
 {block content}
-{var $nick = $profile?->nickname ?? $profile?->user?->email ?? ''}
+{var $nick = $player?->nickname ?? $player?->user?->email ?? ''}
 {var $initial = $nick ? strtoupper(substr($nick, 0, 1)) : 'N'}
-{var $email = $profile?->user?->email ?? null}
+{var $email = $player?->user?->email ?? null}
 {var $level = $level ?? 1}
 {var $xp = $xp ?? 0}
 {var $xpToNext = $xpToNext ?? 100}
 {var $xpPct = $xpPct ?? 0}
 {var $slug = $seasonFaction?->slug}
-{var $currentSlug = ($profile?->faction?->slug ?? 'noctis')}
+{var $currentSlug = ($player?->faction?->slug ?? 'noctis')}
 {var $seasonSlug  = $seasonFaction?->slug ?? $currentSlug}
-{var $seasonColor = $seasonFaction?->color ?? ($profile?->faction?->color ?? '#6A1B9A')}
+{var $seasonColor = $seasonFaction?->color ?? ($player?->faction?->color ?? '#6A1B9A')}
 
 <div class="container py-4">
   
   <!-- Sekce 1: Profil -->
-  <section id="profile" class="pr-section">
-    <div class="nr-profile-skin f-{$currentSlug}">
+  <section id="player" class="pr-section">
+    <div class="nr-player-skin f-{$currentSlug}">
       <div class="nr-glass p-3 p-md-4 rounded-4 mb-3">
         <div class="row g-4">
           <div class="col-12 col-lg-4">
@@ -34,13 +34,13 @@
               <div class="nr-stat">
                 <div class="nr-box">
                   <div class="nr-stat-label">Jméno</div>
-                  <div class="nr-stat-value top-row">{$profile?->nickname ?? '—'}</div>
+                  <div class="nr-stat-value top-row">{$player?->nickname ?? '—'}</div>
                 </div>
               </div>
               <div class="nr-stat">
                 <div class="nr-box">
                   <div class="nr-stat-label">Frakce</div>
-                  <div class="nr-stat-value top-row">{$profile?->faction?->name ?? '—'}</div>
+                  <div class="nr-stat-value top-row">{$player?->faction?->name ?? '—'}</div>
                 </div>
               </div>
               <div class="nr-stat">
@@ -52,19 +52,19 @@
               <div class="nr-stat">
                 <div class="nr-box">
                   <div class="nr-stat-label">Počet karet</div>
-                  <div class="nr-stat-value">{$profile?->cards ?? 0}</div>
+                  <div class="nr-stat-value">{$player?->cards ?? 0}</div>
                 </div>
               </div>
               <div class="nr-stat">
                 <div class="nr-box">
                   <div class="nr-stat-label">Otevřené balíčky</div>
-                  <div class="nr-stat-value">{$profile?->openedPacks ?? 0}</div>
+                  <div class="nr-stat-value">{$player?->openedPacks ?? 0}</div>
                 </div>
               </div>
               <div class="nr-stat">
                 <div class="nr-box">
                   <div class="nr-stat-label">Achievementy</div>
-                  <div class="nr-stat-value">{$profile?->achievements ?? 0}</div>
+                  <div class="nr-stat-value">{$player?->achievements ?? 0}</div>
                 </div>
               </div>
 
@@ -76,10 +76,10 @@
                 <div class="nr-progress" style="--pct: {$xpPct}%;"><div class="nr-progress-bar"></div></div>
               </div>
 
-              {if $profile?->faction?->description}
+              {if $player?->faction?->description}
                 <div class="nr-full">
                   <div class="nr-label">Popis frakce</div>
-                  <div class="nr-box">{$profile->faction->description}</div>
+                  <div class="nr-box">{$player->faction->description}</div>
                 </div>
               {/if}
 
@@ -169,13 +169,13 @@
         <div class="nr-stat">
           <div class="nr-box">
             <div class="nr-stat-label">Achievementy</div>
-            <div class="nr-stat-value">{$profile?->achievements ?? 0}</div>
+            <div class="nr-stat-value">{$player?->achievements ?? 0}</div>
           </div>
         </div>
         <div class="nr-stat">
           <div class="nr-box">
             <div class="nr-stat-label">Karty celkem</div>
-            <div class="nr-stat-value">{$profile?->cards ?? 0}</div>
+            <div class="nr-stat-value">{$player?->cards ?? 0}</div>
           </div>
         </div>
         <div class="nr-full">

@@ -7,8 +7,8 @@ services:
 
 	- App\Model\Modules\User\UserFacade
 
-	- App\Model\Modules\Profile\ProfileFacade
-	- App\Model\Modules\Profile\SeasonStatsFacade
+	- App\Model\Modules\Player\PlayerFacade
+	- App\Model\Modules\Player\SeasonStatsFacade
 
 	- App\Model\Modules\Faction\FactionFacade
 

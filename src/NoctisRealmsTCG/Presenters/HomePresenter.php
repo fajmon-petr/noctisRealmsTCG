@@ -2,7 +2,7 @@
 
 namespace App\Presenters;
 
-use App\Model\Modules\Profile\ProfileFacade;
+use App\Model\Modules\Player\PlayerFacade;
 use App\Model\Modules\User\UserFacade;
 use Doctrine\ORM\EntityManagerInterface;
 use Nette\Application\UI\Form;
@@ -12,15 +12,15 @@ final class HomePresenter extends BasePresenter
 {
     private UserFacade $userFacade;
 
-    private ProfileFacade $profileFacade;
+    private PlayerFacade $playerFacade;
 
     private EntityManagerInterface $entityManager;
 
-    public function __construct(UserFacade $userFacade, ProfileFacade $profileFacade, EntityManagerInterface $entityManager)
+    public function __construct(UserFacade $userFacade, PlayerFacade $playerFacade, EntityManagerInterface $entityManager)
     {
         parent::__construct($entityManager);
         $this->userFacade = $userFacade;
-        $this->profileFacade = $profileFacade;
+        $this->playerFacade = $playerFacade;
     }
 
     /** Přihlášení */
@@ -42,7 +42,7 @@ final class HomePresenter extends BasePresenter
             $this->getUser()->setExpiration('30 minutes');
 
             $this->flashMessage('Vítej zpět!', 'success');
-            $this->redirect('Profile:default');
+            $this->redirect('Player:default');
 
         } catch (AuthenticationException $e) {
             // Zobrazíme chybu jako flash místo chybového pole ve formuláři
@@ -76,10 +76,10 @@ final class HomePresenter extends BasePresenter
         $userEntity = $this->userFacade->register($v->email, $v->password);
         $this->getUser()->login($v->email, $v->password);
 
-        $this->profileFacade->getOrCreateForUser($userEntity);
+        $this->playerFacade->getOrCreateForUser($userEntity);
 
         $this->flashMessage('Úspěšná registrace. Vyber si frakci.', 'success');
-        $this->redirect('Profile:select');
+        $this->redirect('Player:select');
     }
 
     public function actionLogout(): void
