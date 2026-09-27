@@ -37,7 +37,7 @@ class Card
     {
         return $this->id;
     }
-    
+
     public function getFaction(): ?Faction
     {
         return $this->faction;

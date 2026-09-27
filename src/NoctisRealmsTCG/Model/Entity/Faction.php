@@ -2,8 +2,8 @@
 
 namespace App\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
 use App\Utils\MagicAccessors;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @property-read int $id
@@ -37,7 +37,7 @@ class Faction
     #[ORM\Column(type: "text", nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(type:"text", nullable: true)]
+    #[ORM\Column(type: "text", nullable: true)]
     private ?string $emblem = null;
 
     #[ORM\Column(type: "integer")]
@@ -46,56 +46,78 @@ class Faction
     #[ORM\Column(type: "integer")]
     private int $factionPoints = 0;
 
-    public function getId(): int { 
-        return $this->id; 
+    public function getId(): int
+    {
+        return $this->id;
     }
 
-    public function getSlug(): string { 
-        return $this->slug; 
-    }
-    public function setSlug(string $slug): void { 
-        $this->slug = $slug; 
+    public function getSlug(): string
+    {
+        return $this->slug;
     }
 
-    public function getName(): string { 
-        return $this->name; 
-    }
-    public function setName(string $name): void { 
-        $this->name = $name; 
+    public function setSlug(string $slug): void
+    {
+        $this->slug = $slug;
     }
 
-    public function getColor(): string { 
-        return $this->color; 
-    }
-    public function setColor(string $color): void { 
-        $this->color = $color; 
+    public function getName(): string
+    {
+        return $this->name;
     }
 
-    public function getDescription(): ?string { 
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function getColor(): string
+    {
+        return $this->color;
+    }
+
+    public function setColor(string $color): void
+    {
+        $this->color = $color;
+    }
+
+    public function getDescription(): ?string
+    {
         return $this->description;
     }
-    public function setDescription(?string $d): void { 
-        $this->description = $d; 
+
+    public function setDescription(?string $d): void
+    {
+        $this->description = $d;
     }
 
-    public function getEmblem(): ?string { 
+    public function getEmblem(): ?string
+    {
         return $this->description;
     }
-    public function setEmblem(?string $d): void { 
-        $this->description = $d; 
+
+    public function setEmblem(?string $d): void
+    {
+        $this->description = $d;
     }
 
-    public function getPlayersCount(): int { 
-        return $this->playersCount; 
-    }
-    public function setPlayersCount(int $n): void { 
-        $this->playersCount = $n; 
+    public function getPlayersCount(): int
+    {
+        return $this->playersCount;
     }
 
-    public function getFactionPoints(): int { 
-        return $this->factionPoints; 
+    public function setPlayersCount(int $n): void
+    {
+        $this->playersCount = $n;
     }
-    public function setFactionPoints(int $n): void { 
-        $this->factionPoints = $n; 
+
+    public function getFactionPoints(): int
+    {
+        return $this->factionPoints;
+    }
+
+    public function setFactionPoints(int $n): void
+    {
+        $this->factionPoints = $n;
     }
 }

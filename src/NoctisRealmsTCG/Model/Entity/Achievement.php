@@ -2,8 +2,8 @@
 
 namespace App\Model\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
 use App\Utils\MagicAccessors;
+use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: "achievement")]
@@ -37,13 +37,14 @@ class Achievement
     private \DateTimeInterface $createdAt;
 
     public function __construct(
-        string $code,
-        string $name,
+        string  $code,
+        string  $name,
         ?string $description = null,
-        int $points = 0,
+        int     $points = 0,
         ?string $icon = null,
-        string $type = 'created'
-    ) {
+        string  $type = 'created'
+    )
+    {
         $this->code = $code;
         $this->name = $name;
         $this->description = $description;

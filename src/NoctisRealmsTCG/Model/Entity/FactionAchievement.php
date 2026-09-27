@@ -25,9 +25,9 @@ class FactionAchievement
 
     public function __construct(Faction $faction, Achievement $achievement, ?\DateTimeInterface $at = null)
     {
-        $this->faction  = $faction;
+        $this->faction = $faction;
         $this->achievement = $achievement;
-        $this->achievedAt  = $at ?? new \DateTimeImmutable();
+        $this->achievedAt = $at ?? new \DateTimeImmutable();
     }
 
     // getters...
