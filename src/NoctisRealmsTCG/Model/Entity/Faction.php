@@ -93,12 +93,12 @@ class Faction
 
     public function getEmblem(): ?string
     {
-        return $this->description;
+        return $this->emblem;
     }
 
-    public function setEmblem(?string $d): void
+    public function setEmblem(?string $emblem): void
     {
-        $this->description = $d;
+        $this->emblem = $emblem;
     }
 
     public function getPlayersCount(): int

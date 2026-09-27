@@ -9,7 +9,7 @@ RENAME TABLE
   users TO user;
   
 ALTER TABLE player_season_stat
-CHANGE profile_id TO player_id INT NOT NULL;
+CHANGE profile_id player_id INT NOT NULL;
 
 ALTER TABLE player_season_stat
   DROP INDEX uniq_profile_faction_season,

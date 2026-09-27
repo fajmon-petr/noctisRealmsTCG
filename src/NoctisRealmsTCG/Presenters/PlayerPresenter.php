@@ -124,12 +124,12 @@ class PlayerPresenter extends BasePresenter
             $this->redirect('Home:default');
         }
 
+        /** @var User $user */
         $user = $this->em->getRepository(User::class)->find($this->user->getId());
-        $player = $this->em->getRepository(Player::class)
-            ->findOneBy(['user' => $user]);
+        $player = $this->playerFacade->getOrCreateForUser($user);
 
         $this->composePlayerTab($player);
-        $this->composeFactionTab($player, $this->season);
+        $this->composeFactionTab($player);
         $this->composeAchievementsTab($player);
 
         // déšť chceš i na profilu? pak:
@@ -156,13 +156,9 @@ class PlayerPresenter extends BasePresenter
     }
 
     /** Tab „Frakce“: sezóny, moje stats v sezóně/lifetime, leaderboard */
-    private function composeFactionTab(Player $player, ?int $seasonId): void
+    private function composeFactionTab(Player $player): void
     {
         $rows = $this->seasonStatsFacade->allSeasonsWithMyStats($player);
-        
-        if ($seasonId === null) {
-            $seasonId = $this->em->getRepository(Season::class)->findOneBy(['endAt' => null])->id;
-        }
 
         // seznam pro <select>
         $this->template->seasons = array_map(
@@ -170,29 +166,33 @@ class PlayerPresenter extends BasePresenter
             $rows
         );
 
-        // zvolená sezóna = persistent ? první řádek
-        $effectiveSeasonId = $this->season ?: ($rows[0]['seasonId'] ?? null);
-        $this->template->season = $effectiveSeasonId;
+        // zvolená sezóna = persistent ?: otevřená sezóna ?: první řádek
+        $seasonId = $this->season
+            ?? $this->em->getRepository(Season::class)->findOneBy(['endAt' => null])?->getId()
+            ?? (isset($rows[0]) ? (int) $rows[0]['seasonId'] : null);
+        $this->template->season = $seasonId;
 
         // najdi řádek vybrané sezóny (nebo první jako fallback)
-        $current = $rows[0] ?? null;
+        $current = $rows[0] ?? [];
         foreach ($rows as $r) {
-            if ((int) $r['seasonId'] === (int) $effectiveSeasonId) {
+            if ((int) $r['seasonId'] === $seasonId) {
                 $current = $r;
                 break;
             }
         }
 
-        $this->template->seasonFactionSlug = $current['factionSlug'];
-        
+        $fallbackSlug = $player->getFaction()?->getSlug() ?? 'noctis';
+        $this->template->seasonFactionSlug = $current['factionSlug'] ?? $fallbackSlug;
+
         // frakce pro styling headeru (bez dalšího dotazu)
         $this->template->seasonFaction = (object) [
             'name' => $current['factionName'] ?? null,
             'slug' => $current['factionSlug'] ?? null,
             'color' => $current['factionColor'] ?? '#6A1B9A',
-            'rank' => $current['finalRank'] ?? $this->seasonStatsFacade->getLiveRank($player->id, $seasonId),
-            'start' => $current['startAt'] ? $current['startAt']->format('d. m. Y') : null,
-            'end' => $current['endAt'] ? $current['endAt']->format('d. m. Y') : 'současnost',
+            'rank' => $current['finalRank']
+                ?? ($seasonId !== null ? $this->seasonStatsFacade->getLiveRank($player->getId(), $seasonId) : null),
+            'start' => isset($current['startAt']) ? $current['startAt']->format('d. m. Y') : null,
+            'end' => isset($current['endAt']) ? $current['endAt']->format('d. m. Y') : 'současnost',
         ];
         
         // čísla pro karty

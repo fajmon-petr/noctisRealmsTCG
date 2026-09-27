@@ -38,7 +38,7 @@ class SeasonStatsFacade
           cards_rare=cards_rare+VALUES(cards_rare),
           cards_epic=cards_epic+VALUES(cards_epic),
           cards_legendary=cards_legendary+VALUES(cards_legendary)";
-    $this->db->executeStatement($sql, [
+    $this->connection->executeStatement($sql, [
       'p' => $playerId,
       'f' => $factionId,
       's' => $seasonId,

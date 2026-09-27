@@ -5,5 +5,5 @@ CREATE TABLE cards (
   rarity CHAR(1) NOT NULL,          
   image_path VARCHAR(255) NOT NULL,  
 
-  ADD CONSTRAINT fk_card_faction FOREIGN KEY (faction_id) REFERENCES factions(id) ON DELETE SET NULL;
+  CONSTRAINT fk_card_faction FOREIGN KEY (faction_id) REFERENCES factions(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

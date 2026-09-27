@@ -11,34 +11,27 @@
     </select>
     <select name="faction">
       <option value="">Frakce</option>
-      <option n:foreach="['Ignis','Vitae','Noctis'] as $f"
-              value="{$f}" n:attr="selected: $filters['faction'] === $f">{$f}</option>
+      <option n:foreach="['ignis' => 'Ignis', 'vitae' => 'Vitae', 'noctis' => 'Noctis'] as $slug => $name"
+              value="{$slug}" n:attr="selected: $filters['faction'] === $slug">{$name}</option>
     </select>
     <select name="sort">
       <option value="new" n:attr="selected: $filters['sort'] === 'new'">Nejnovější</option>
       <option value="name_asc" n:attr="selected: $filters['sort'] === 'name_asc'">Název A–Z</option>
-      <option value="price_asc" n:attr="selected: $filters['sort'] === 'price_asc'">Cena ↑</option>
-      <option value="price_desc" n:attr="selected: $filters['sort'] === 'price_desc'">Cena ↓</option>
     </select>
     <button type="submit">Filtrovat</button>
   </form>
 
   <div class="grid shop-grid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:1rem; margin-top:1rem;">
     <a n:foreach="$items as $p" n:href="Shop:detail id => $p->getId()" class="card" style="display:block; padding:1rem; border:1px solid #eee; border-radius:.75rem; text-decoration:none;">
-      {var $img = method_exists($p,'getImageUrl') ? $p->getImageUrl() : null}
-      <img n:if="$img" src="{$img}" alt="{$p->getName()}" style="width:100%; height:160px; object-fit:cover; border-radius:.5rem;">
+      <img src="{$basePath}{$p->getImagePath()}" alt="{$p->getName()}" style="width:100%; height:160px; object-fit:cover; border-radius:.5rem;">
       <h3 style="margin:.5rem 0">{$p->getName()}</h3>
       <p class="muted" style="opacity:.7; margin:0 0 .5rem 0">
-        {if method_exists($p,'getFaction')}{$p->getFaction()}{/if}
-        {if method_exists($p,'getRarity')} • {$p->getRarity()}{/if}
-    </p>
-      <div class="price" n:if="method_exists($p,'getPrice')">
-        {$p->getPrice()|number:0,',',' '} Kč
-      </div>
+        {$p->getFaction()?->getName()} • {$p->getRarity()}
+      </p>
     </a>
   </div>
 
-  {var $page = $filters['page']; $per = $filters['perPage']; $total = $filters['total']; $pages = max(1, (int)ceil($total / $per));}
+  {var $page = $filters['page'], $pages = max(1, (int) ceil($filters['total'] / $filters['perPage']))}
   <nav n:if="$pages > 1" style="display:flex; gap:.5rem; margin-top:1rem;">
     <a n:if="$page > 1" n:href="Shop:default page => $page-1, q => $filters['search'], rarity => $filters['rarity'], faction => $filters['faction'], sort => $filters['sort']">← Předchozí</a>
     <span>Strana {$page}/{$pages}</span>
