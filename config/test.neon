@@ -1,0 +1,6 @@
+# Konfigurace pro integrační testy – načítá se navíc k common.neon a services.neon (Bootstrap::bootTestContainer)
+
+doctrine.dbal:
+    connections:
+        default:
+            dbname: noctis_test

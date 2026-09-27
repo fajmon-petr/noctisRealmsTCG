@@ -83,8 +83,10 @@
                 </div>
               {/if}
 
-              <div class="nr-actions nr-full">
-                {* akce sem vrátíš později *}
+              <div class="nr-actions nr-full d-flex flex-wrap gap-2">
+                <a n:href="collection" class="btn">Kolekce</a>
+                <a n:href="backpack" class="btn btn-ghost">Batoh{if $backpackCount} ({$backpackCount}){/if}</a>
+                <a n:href="Shop:default" class="btn btn-ghost">Obchod</a>
               </div>
             </div>
           </div>
@@ -179,8 +181,16 @@
           </div>
         </div>
         <div class="nr-full">
-          <div class="nr-label">Seznam (WIP)</div>
-          <div class="nr-box">Sem pak hodíme výpis karet a odznaků…</div>
+          <div class="nr-label">Karty</div>
+          <div class="nr-box d-flex flex-wrap gap-2 align-items-center">
+            <span>{$player?->cards ?? 0} karet v kolekci, {$backpackCount} neotevřených balíčků.</span>
+            <a n:href="collection" class="btn btn-sm ms-auto">Kolekce a darování</a>
+            <a n:href="backpack" class="btn btn-sm btn-ghost">Batoh</a>
+          </div>
+        </div>
+        <div class="nr-full">
+          <div class="nr-label">Odznaky (WIP)</div>
+          <div class="nr-box">Sem pak hodíme výpis odznaků…</div>
         </div>
       </div>
     </div>

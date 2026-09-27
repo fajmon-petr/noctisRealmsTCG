@@ -1,0 +1,50 @@
+{* Sdílené bloky pro batoh, výsledek otevření balíčků a kolekci *}
+
+{* Styly karet podle rarity – vložit do {block head} *}
+{define cardStyles}
+  <style>
+    .pack-card { position: relative; border: 2px solid var(--rc, #888); box-shadow: 0 0 18px -6px var(--rc, #888); }
+    .pack-card img { width: 100%; aspect-ratio: 5 / 7; object-fit: cover; border-radius: .5rem; }
+    .pack-card .badge-corner { position: absolute; top: .5rem; right: .5rem; }
+    .r-C { --rc: #9e9e9e; } .r-U { --rc: #43a047; } .r-R { --rc: #1e88e5; }
+    .r-E { --rc: #9c27b0; } .r-L { --rc: #ffb300; }
+    .r-label { color: var(--rc); font-weight: 700; }
+  </style>
+{/define}
+
+{* Ovládání otevírání: počet + Otevřít + Otevřít vše. $key = slug frakce nebo 'all' *}
+{define openControls, string $key, int $available, int $max}
+  {var $limit = min($available, $max)}
+  {form "openPackForm-$key", class: 'd-flex flex-wrap gap-2 align-items-center'}
+    <div n:foreach="$form->getErrors() as $error" class="alert error py-1 px-2 mb-0 w-100">{$error}</div>
+    {input count, class: 'form-control form-control-sm', style: 'width:5rem', max: $limit}
+    {input open, class: 'btn btn-ghost'}
+    {input openAll, class: 'btn', value: "Otevřít vše ($limit)"}
+  {/form}
+{/define}
+
+
+{* Postup ke garancím *}
+{define guaranteeInfo}
+  <div class="d-flex flex-wrap gap-4 align-items-center">
+    <div>
+      <div style="opacity:.75">Otevřených balíčků</div>
+      <div class="fs-3 fw-bold">{$openedPacks}</div>
+    </div>
+    <div>
+      <div style="opacity:.75">Další balíček</div>
+      <div class="fw-bold">
+        {if $nextGuarantee === 'L'}garance <span class="text-warning">Legendary</span>
+        {elseif $nextGuarantee === 'E'}garance <span style="color:#b57bff">Epic</span>
+        {elseif $nextGuarantee === 'R'}garance <span class="text-info">Rare nebo lepší</span>
+        {else}bez garance{/if}
+      </div>
+    </div>
+    <div class="ms-md-auto" style="opacity:.85">
+      Do garance zbývá:
+      <strong>rare+</strong> {$guarantees['rare+']}
+      • <strong>epic+</strong> {$guarantees['epic+']}
+      • <strong>legendary</strong> {$guarantees['legendary']}
+    </div>
+  </div>
+{/define}

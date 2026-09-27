@@ -6,6 +6,7 @@ namespace App\Model\Modules\Faction;
 use App\Model\Entity\Achievement;
 use App\Model\Entity\Faction;
 use App\Model\Entity\FactionSeasonStats;
+use App\Model\Entity\Rarity;
 use Doctrine\ORM\EntityManagerInterface;
 
 class FactionFacade
@@ -17,6 +18,11 @@ class FactionFacade
         private EntityManagerInterface $em,
     ) {}
 
+    public function getBySlug(string $slug): ?Faction
+    {
+        return $this->em->getRepository(Faction::class)->findOneBy(['slug' => $slug]);
+    }
+
     public function getFactionBySlugOrDefault(?string $slug): ?Faction
     {
         $repo = $this->em->getRepository(Faction::class);
@@ -26,29 +32,24 @@ class FactionFacade
     }
 
     /**
-     * @return array{pointsTotal:int, cardsByRarity:array{C:int,U:int,R:int,E:int,L:int}}
+     * Body a počty darovaných karet frakce v sezóně (bez sezóny / bez záznamu = nuly).
+     *
+     * @return array{pointsTotal: int, cardsByRarity: array<string, int>} cardsByRarity: kód rarity => počet
      */
     public function getSeasonStats(int $factionId, ?int $seasonId): array
     {
         /** @var FactionSeasonStats|null $row */
-        $row = $this->em->getRepository(FactionSeasonStats::class)
+        $row = $seasonId === null ? null : $this->em->getRepository(FactionSeasonStats::class)
             ->findOneBy(['faction' => $factionId, 'season' => $seasonId]);
 
-        if (!$row) {
-            return [
-                'pointsTotal'   => 0,
-                'cardsByRarity' => ['C' => 0, 'U' => 0, 'R' => 0, 'E' => 0, 'L' => 0],
-            ];
-        }
-
         return [
-            'pointsTotal'   => $row->getPointsTotal(),
+            'pointsTotal'   => $row?->getPointsTotal() ?? 0,
             'cardsByRarity' => [
-                'C' => $row->getCommon(),
-                'U' => $row->getUncommon(),
-                'R' => $row->getRare(),
-                'E' => $row->getEpic(),
-                'L' => $row->getLegendary(),
+                Rarity::COMMON    => $row?->getCommon() ?? 0,
+                Rarity::UNCOMMON  => $row?->getUncommon() ?? 0,
+                Rarity::RARE      => $row?->getRare() ?? 0,
+                Rarity::EPIC      => $row?->getEpic() ?? 0,
+                Rarity::LEGENDARY => $row?->getLegendary() ?? 0,
             ],
         ];
     }
@@ -58,7 +59,7 @@ class FactionFacade
     {
         return $this->em->getRepository(Faction::class)->createQueryBuilder('f')
             ->where('f.slug != :neutral')
-            ->setParameter('neutral', 'neutral')
+            ->setParameter('neutral', Faction::NEUTRAL_SLUG)
             ->orderBy('f.id', 'ASC')
             ->getQuery()
             ->getResult();

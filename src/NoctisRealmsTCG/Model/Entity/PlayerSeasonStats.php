@@ -162,9 +162,4 @@ class PlayerSeasonStats
     {
         $this->legendary = $legendary;
     }
-
-    public function addCard(array $cards): void
-    {
-        //TODO vymyslet přidávání karet jednou funkcí, ať nemá každý svůj vlastní add funkcion.
-    }
 }

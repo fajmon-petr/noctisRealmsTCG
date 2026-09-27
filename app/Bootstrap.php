@@ -38,6 +38,16 @@ class Bootstrap
 	}
 
 
+	/** Kontejner pro integrační testy – DB noctis_test (config/test.neon), vývojový režim (Doctrine generuje proxy) */
+	public function bootTestContainer(): Nette\DI\Container
+	{
+		$this->configurator->setDebugMode(true);
+		$this->setupContainer();
+		$this->configurator->addConfig($this->rootDir . '/config/test.neon');
+		return $this->configurator->createContainer();
+	}
+
+
 	public function initializeEnvironment(): void
 	{
 		//$this->configurator->setDebugMode('secret@23.75.345.200'); // enable for your remote IP

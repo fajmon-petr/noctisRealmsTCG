@@ -16,6 +16,11 @@ services:
 	- App\Model\Modules\Season\SeasonFacade
 
 	- App\Model\Modules\Card\CardFacade
+	- App\Model\Modules\Card\CollectionFacade
+
+	- App\Model\Modules\Faction\FactionStatsFacade
+
+	- App\Model\Modules\Pack\PackFacade
 
 search:
 	-	in: %appDir%

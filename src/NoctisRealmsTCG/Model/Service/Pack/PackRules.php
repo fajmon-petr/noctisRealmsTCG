@@ -19,6 +19,12 @@ final class PackRules
     /** Počet karet v balíčku */
     public const CARDS_PER_PACK = 5;
 
+    /** Kolik balíčků lze koupit jedním nákupem */
+    public const MAX_BUY_AT_ONCE = 10;
+
+    /** Kolik balíčků lze otevřít jedním kliknutím („Otevřít vše“) */
+    public const MAX_OPEN_AT_ONCE = 50;
+
     /** Každý N-tý otevřený balíček má garantovaný slot (vyšší garance má přednost) */
     public const GUARANTEE_EVERY = [
         Rarity::LEGENDARY => 20,

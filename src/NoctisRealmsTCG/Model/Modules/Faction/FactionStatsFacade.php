@@ -2,8 +2,14 @@
 
 namespace App\Model\Modules\Faction;
 
+use App\Model\Entity\Rarity;
 use Doctrine\DBAL\Connection;
 
+/**
+ * Sezónní statistiky frakcí (tabulka `faction_season_stat`).
+ * Zápisy jsou atomické (INSERT … ON DUPLICATE KEY UPDATE), aby se při souběžných příspěvcích
+ * více hráčů body neztratily.
+ */
 final class FactionStatsFacade
 {
     public function __construct(
@@ -11,105 +17,59 @@ final class FactionStatsFacade
     ) {}
 
     /**
-     * Přičte frakci příspěvek (body + počty karet dle rarity) v dané sezóně (nebo all-time při NULL).
-     * $r = ['C'=>int,'U'=>int,'R'=>int,'E'=>int,'L'=>int]
+     * Přičte frakci příspěvek (body + počty karet podle rarity) v dané sezóně.
+     *
+     * @param array<string, int> $cardsByRarity kód rarity (C/U/R/E/L) => počet karet
      */
-    public function addContribution(
-        int $factionId,
-        int $points,
-        array $r = ['C'=>0,'U'=>0,'R'=>0,'E'=>0,'L'=>0],
-        ?int $seasonId = null
-    ): void {
-        $sql = "INSERT INTO faction_season_stats
-                  (faction_id, season_id, points_total, cards_common, cards_uncommon, cards_rare, cards_epic, cards_legendary)
+    public function addContribution(int $factionId, int $seasonId, int $points, array $cardsByRarity = []): void
+    {
+        $sql = "INSERT INTO faction_season_stat
+                  (faction_id, season_id, points_total, common, uncommon, rare, epic, legendary)
                 VALUES (:f, :s, :pts, :c, :u, :r, :e, :l)
                 ON DUPLICATE KEY UPDATE
-                  points_total   = points_total   + VALUES(points_total),
-                  cards_common   = cards_common   + VALUES(cards_common),
-                  cards_uncommon = cards_uncommon + VALUES(cards_uncommon),
-                  cards_rare     = cards_rare     + VALUES(cards_rare),
-                  cards_epic     = cards_epic     + VALUES(cards_epic),
-                  cards_legendary= cards_legendary+ VALUES(cards_legendary)";
+                  points_total = points_total + VALUES(points_total),
+                  common       = common       + VALUES(common),
+                  uncommon     = uncommon     + VALUES(uncommon),
+                  rare         = rare         + VALUES(rare),
+                  epic         = epic         + VALUES(epic),
+                  legendary    = legendary    + VALUES(legendary)";
         $this->db->executeStatement($sql, [
             'f'   => $factionId,
             's'   => $seasonId,
             'pts' => $points,
-            'c'   => (int)($r['C'] ?? 0),
-            'u'   => (int)($r['U'] ?? 0),
-            'r'   => (int)($r['R'] ?? 0),
-            'e'   => (int)($r['E'] ?? 0),
-            'l'   => (int)($r['L'] ?? 0),
+            'c'   => $cardsByRarity[Rarity::COMMON] ?? 0,
+            'u'   => $cardsByRarity[Rarity::UNCOMMON] ?? 0,
+            'r'   => $cardsByRarity[Rarity::RARE] ?? 0,
+            'e'   => $cardsByRarity[Rarity::EPIC] ?? 0,
+            'l'   => $cardsByRarity[Rarity::LEGENDARY] ?? 0,
         ]);
     }
 
     /**
-     * Vráti stats pro frakci v sezóně ve formátu očekávaném šablonou (klíče 'points', 'common'…)
-     * Když řádek neexistuje, vrátí nuly.
-     * @return array{points:int, common:int, uncommon:int, rare:int, epic:int, legendary:int}
+     * Žebříček frakcí v sezóně: id, name, slug, color, points_total a počty karet podle rarity.
+     *
+     * @return list<array<string, mixed>>
      */
-    public function getSeasonStatsView(int $factionId, ?int $seasonId): array
+    public function getLeaderboard(int $seasonId): array
     {
-        $params = ['f' => $factionId];
-        if ($seasonId === null) {
-            $sql = "SELECT points_total, cards_common, cards_uncommon, cards_rare, cards_epic, cards_legendary
-                    FROM faction_season_stats
-                    WHERE faction_id = :f AND season_id IS NULL
-                    LIMIT 1";
-        } else {
-            $sql = "SELECT points_total, cards_common, cards_uncommon, cards_rare, cards_epic, cards_legendary
-                    FROM faction_season_stats
-                    WHERE faction_id = :f AND season_id = :s
-                    LIMIT 1";
-            $params['s'] = $seasonId;
-        }
-
-        $row = $this->db->fetchAssociative($sql, $params) ?: [];
-
-        return [
-            'points'    => (int)($row['points_total']   ?? 0),
-            'common'    => (int)($row['cards_common']   ?? 0),
-            'uncommon'  => (int)($row['cards_uncommon'] ?? 0),
-            'rare'      => (int)($row['cards_rare']     ?? 0),
-            'epic'      => (int)($row['cards_epic']     ?? 0),
-            'legendary' => (int)($row['cards_legendary']?? 0),
-        ];
+        return $this->db->fetchAllAssociative(
+            "SELECT f.id, f.name, f.slug, f.color,
+                    s.points_total, s.common, s.uncommon, s.rare, s.epic, s.legendary
+             FROM faction f
+             JOIN faction_season_stat s ON s.faction_id = f.id AND s.season_id = :sid
+             ORDER BY s.points_total DESC, f.id ASC",
+            ['sid' => $seasonId],
+        );
     }
 
-    /**
-     * Leaderboard frakcí v dané sezóně (nebo all-time při NULL).
-     * Vrací: id, name, slug, color, points_total a raritní součty.
-     * @return array<int, array<string, mixed>>
-     */
-    public function getLeaderboard(?int $seasonId): array
-    {
-        // Pozn.: názvy tabulek/sloupců frakce si uprav dle své schémy (factions: id, name, slug, color)
-        $params = [];
-        if ($seasonId === null) {
-            $sql = "SELECT f.id, f.name, f.slug, f.color,
-                           s.points_total, s.cards_common, s.cards_uncommon, s.cards_rare, s.cards_epic, s.cards_legendary
-                    FROM factions f
-                    JOIN faction_season_stats s ON s.faction_id = f.id AND s.season_id IS NULL
-                    ORDER BY s.points_total DESC, f.id ASC";
-        } else {
-            $sql = "SELECT f.id, f.name, f.slug, f.color,
-                           s.points_total, s.cards_common, s.cards_uncommon, s.cards_rare, s.cards_epic, s.cards_legendary
-                    FROM factions f
-                    JOIN faction_season_stats s ON s.faction_id = f.id AND s.season_id = :sid
-                    ORDER BY s.points_total DESC, f.id ASC";
-            $params['sid'] = $seasonId;
-        }
-
-        return $this->db->fetchAllAssociative($sql, $params);
-    }
-
-    /**
-     * (Volitelné) Nastaví finální umístění frakce v sezóně (po uzavření sezóny).
-     */
+    /** Finální umístění frakce v sezóně (po uzavření sezóny) */
     public function setFinalRank(int $factionId, int $seasonId, int $rank): void
     {
-        $sql = "INSERT INTO faction_season_stats (faction_id, season_id, final_rank)
-                VALUES (:f,:s,:r)
-                ON DUPLICATE KEY UPDATE final_rank = VALUES(final_rank)";
-        $this->db->executeStatement($sql, ['f'=>$factionId,'s'=>$seasonId,'r'=>$rank]);
+        $this->db->executeStatement(
+            "INSERT INTO faction_season_stat (faction_id, season_id, final_rank)
+             VALUES (:f, :s, :r)
+             ON DUPLICATE KEY UPDATE final_rank = VALUES(final_rank)",
+            ['f' => $factionId, 's' => $seasonId, 'r' => $rank],
+        );
     }
 }

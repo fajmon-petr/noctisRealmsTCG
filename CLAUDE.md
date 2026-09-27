@@ -31,6 +31,7 @@ Webová sběratelská karetní hra (TCG). Hráč se zaregistruje, vybere si jedn
 - Migrace: **Phinx**. Změna schématu = nová migrace (`php vendor/bin/phinx create NazevZmeny`) + ruční úprava entity. Phinx neumí číst entity – soulad hlídá uživatel, pomocí `php console.php orm:validate-schema`.
 - Migrace spouští uživatel (nebo Claude po potvrzení). Pozor: i `phinx status` při prvním připojení k DB vytvoří tabulku `phinxlog` – na DB bez ní je to zápis.
 - Prostředí: `development` = DB `noctis`, `testing` = DB `noctis_test`.
+- **Výjimka – testy:** integrační testy smí zapisovat do `noctis_test` bez ptaní (každý test se vrací rollbackem). Migrace a jiné zápisy – i do `noctis_test` – dál jen po potvrzení.
 - Testovací účet (smí zůstat v DB): `claude-test@example.com` / `Admin1` (hráč `ClaudeTest`, frakce Noctis). Používat pro testování stránek po přihlášení.
 
 ### Plány
@@ -42,7 +43,11 @@ Webová sběratelská karetní hra (TCG). Hráč se zaregistruje, vybere si jedn
 - Nette Tester (`vendor/bin/tester`), soubory `*.phpt`.
 - `tests/` zrcadlí strukturu `src/NoctisRealmsTCG/`, např. `src/NoctisRealmsTCG/Model/Service/LevelingService.php` → `tests/Model/Service/LevelingService.phpt`.
 - Zatím píšeme **unit testy** (bez DB).
-- **Integrační testy:** knihovna je připravená (Nette Tester umí i integrační testy). Jakmile Claude vyhodnotí, že jsou potřeba (např. logika závislá na DB dotazech – fasády, statistiky, transakce), navrhne je a začneme je psát. Předtím je potřeba připravit infrastrukturu: testovací DB (např. `noctis_test`), `config/test.neon`, nahrání migrací a základních dat, izolace testů (transakce + rollback). Založení testovací DB podléhá potvrzení uživatele (viz Databáze).
+- **Integrační testy:** pro logiku závislou na DB (fasády, statistiky, transakce). Běží proti `noctis_test` (schéma přes Phinx `-e testing`), každý test v transakci s rollbackem. Smí se spouštět bez ptaní (viz Databáze).
+  - Třída testu dědí z `Tests\Support\IntegrationTestCase` (`tests/Support/`), metody `test*()`, na konci souboru `(new XxxTest)->run();`
+  - K dispozici: `$this->em`, `getService(Třída::class)`, data `createUser()`, `createPlayer(frakce, moonDust)`, `createCard(rarita, frakce)`, `getFaction()`, `getRarity()` – testy si data vytváří samy, na obsah `noctis_test` (kromě seedů) nespoléhají
+  - Ochrana: test odmítne běžet proti DB, jejíž název nekončí `_test`; integrační testy běží sériově (zámek)
+  - Po nové migraci ji spustit i na `noctis_test` (s potvrzením), jinak testy selžou
 - K nové nebo upravené logice v modelu (služby, fasády, entity) psát testy.
 
 ### Kód
@@ -50,8 +55,10 @@ Webová sběratelská karetní hra (TCG). Hráč se zaregistruje, vybere si jedn
 - Logika a dotazy patří do fasád/služeb, ne do presenterů. Presentery nepoužívají `EntityManager` přímo.
 - Presentery dědí z `BasePresenter` (má `$playerFacade`); stránky jen pro přihlášené z `SecuredPresenter`. Závislosti přes konstruktor (promoted properties).
 - Nové fasády/služby registrovat v `config/services.neon` (search prohledává jen `app/`).
+- Chyby pro hráče: výjimka odvozená z `App\Model\UserException` (česká zpráva → presenter ji ukáže jako flash). Fasáda ji vyhazuje jen **před** změnou dat.
+- Zápisové operace fasád v transakci přes trait `App\Model\Database\ManualTransaction` (ne `wrapInTransaction` – ten při výjimce zavře EntityManager). Souběh: zamknout řádek (`refresh(..., LockMode::PESSIMISTIC_WRITE)`), sčítání statistik atomicky v SQL.
 - Přístup k entitám: v PHP kódu vždy gettery/settery; v Latte šablonách je povolený property zápis (`$player->faction->slug`) přes `MagicAccessors`.
-- Entity s `MagicAccessors`: Doctrine při inicializaci proxy nastavuje vlastnosti přes `__set` → settery. Setter sloupce, který může být v DB `NULL`, musí přijímat `null`.
+- Entity s `MagicAccessors`: Doctrine při inicializaci lazy proxy zapisuje vlastnosti přes `__set`. `MagicAccessors::__set` proto deklarované vlastnosti zapisuje přímo (bez setteru). Magický zápis `$entity->prop = …` v kódu nepoužívat – vždy settery. Při změně `MagicAccessors` spustit test `PackFacade::testOtevrenyBalicekJdeZnovuNacist` (načtení proxy).
 - Mapování entit drž v souladu s DB včetně názvů indexů (`#[ORM\Index]`, `#[ORM\UniqueConstraint]` jako samostatné atributy – ne uvnitř `#[ORM\Table]`). Kontrola: `php console.php orm:validate-schema`.
 - Komentáře a texty v UI česky.
 

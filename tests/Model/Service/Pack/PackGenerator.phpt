@@ -147,6 +147,20 @@ test('rarita s nulovou šancí nikdy nepadne', function () {
 });
 
 
+test('pickRandom – vybírá rovnoměrně ze všech prvků', function () {
+    $generator = createGenerator();
+    $results = [];
+    for ($i = 0; $i < 30_000; $i++) {
+        $results[] = $generator->pickRandom(['a', 'b', 'c']);
+    }
+    foreach (distribution($results) as $item => $percent) {
+        Assert::true(abs($percent - 100 / 3) <= 1, "$item: padlo $percent %");
+    }
+    Assert::same('x', $generator->pickRandom(['x']));
+    Assert::exception(fn() => $generator->pickRandom([]), InvalidArgumentException::class);
+});
+
+
 test('neplatné šance jsou chyba', function () {
     $generator = createGenerator();
     Assert::exception(fn() => $generator->pick([]), InvalidArgumentException::class);

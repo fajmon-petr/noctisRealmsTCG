@@ -1,0 +1,82 @@
+{import '@packs.latte'}
+
+{block title}Kolekce{/block}
+
+{block head}
+  {include parent}
+  {include cardStyles}
+{/block}
+
+{block content}
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3 mb-3">
+    <h1 class="h3 m-0">Kolekce <small style="opacity:.7">({$player->getCards()} karet)</small></h1>
+    <a n:href="backpack" class="btn btn-ghost">Batoh</a>
+  </div>
+
+  {* ==== Info k darování ==== *}
+  <div class="nr-glass p-3 rounded-4 mb-3">
+    {if !$player->getFaction()}
+      Darovat karty můžeš, až si <a n:href="select">vybereš frakci</a>.
+    {elseif !$season}
+      Právě neprobíhá žádná sezóna – darovat teď nejde.
+    {else}
+      Duplikáty můžeš darovat frakci <strong style="color:{$player->getFaction()->getColor()}">{$player->getFaction()->getName()}</strong>
+      (sezóna {$season->getName()}). Za každou kartu dostaneš Moon Dust a ty i frakce stejný počet bodů do žebříčku.
+      Poslední kus každé karty si necháváš.
+      <div class="mt-2">
+        <small style="opacity:.8">Hodnota:
+          {foreach $rarities as $r}
+            <span class="r-{$r->getCode()} r-label">{$r->getName()} {$r->getDonationValue()}</span>{sep} • {/sep}
+          {/foreach}
+        </small>
+      </div>
+    {/if}
+  </div>
+
+  {* ==== Filtr rarity ==== *}
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    <a n:href="this, rarity: ''" n:class="btn, btn-sm, $rarityFilter === '' ? '' : btn-ghost">Vše</a>
+    <a n:foreach="$rarities as $r" n:href="this, rarity: $r->getCode()"
+       n:class="btn, btn-sm, $rarityFilter === $r->getCode() ? '' : btn-ghost">{$r->getName()}</a>
+  </div>
+
+  {* ==== Karty ==== *}
+  {if $collection}
+    <div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-3">
+      <div n:foreach="$collection as $owned" class="col">
+        {var $card = $owned->getCard()}
+        {var $rarity = $card->getRarity()}
+        <div class="nr-glass rounded-4 p-2 h-100 pack-card r-{$rarity->getCode()} d-flex flex-column">
+          <span class="badge bg-dark badge-corner">{$owned->getQuantity()}×</span>
+          <img src="{$basePath}{$card->getImagePath()}" alt="{$card->getName()}">
+          <div class="mt-2 fw-bold">{$card->getName()}</div>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="r-label">{$rarity->getName()}</span>
+            <small style="opacity:.75">{$card->getFaction()?->getName()}</small>
+          </div>
+
+          <div class="mt-auto">
+            {if $owned->getDonatableQuantity() > 0 && $player->getFaction() && $season}
+              {form "donateForm-{$card->getId()}"}
+                <div n:foreach="$form->getErrors() as $error" class="alert error py-1 px-2 mb-2">{$error}</div>
+                <div class="d-flex gap-1 align-items-center">
+                  {input count, class: 'form-control form-control-sm', style: 'width:4rem', max: $owned->getDonatableQuantity()}
+                  {input donate, class: 'btn btn-sm flex-grow-1', value: "Darovat (+{$rarity->getDonationValue()}/ks)"}
+                </div>
+                <small style="opacity:.7">lze darovat {$owned->getDonatableQuantity()}×</small>
+              {/form}
+            {else}
+              <small style="opacity:.6">{if $owned->getDonatableQuantity() === 0}poslední kus – nelze darovat{/if}</small>
+            {/if}
+          </div>
+        </div>
+      </div>
+    </div>
+  {else}
+    <div class="nr-glass p-4 rounded-4 text-center">
+      {if $rarityFilter}Žádné karty této rarity.{else}Kolekce je prázdná. <a n:href="backpack">Otevři balíček.</a>{/if}
+    </div>
+  {/if}
+</div>
+{/block}

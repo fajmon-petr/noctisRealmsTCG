@@ -1,0 +1,46 @@
+{import '@packs.latte'}
+
+{block title}Batoh{/block}
+
+{block content}
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3 mb-3">
+    <h1 class="h3 m-0">Batoh <small n:if="$packsTotal" style="opacity:.7">({$packsTotal} balíčků)</small></h1>
+    <a n:href="Shop:default" class="btn btn-ghost">Koupit balíčky</a>
+  </div>
+
+  <div class="nr-glass p-3 rounded-4 mb-4">
+    {include guaranteeInfo}
+  </div>
+
+  {if $packGroups}
+    {* ==== Všechny frakce najednou ==== *}
+    <div n:if="count($packGroups) > 1" class="nr-glass p-3 rounded-4 mb-3 d-flex flex-wrap gap-3 align-items-center justify-content-between">
+      <div class="fw-bold">Všechny balíčky ({$packsTotal})</div>
+      {include openControls, key: 'all', available: $packsTotal, max: $maxOpenAtOnce}
+    </div>
+
+    {* ==== Podle frakcí ==== *}
+    <div class="row g-3">
+      <div n:foreach="$packGroups as $slug => $group" class="col-md-4">
+        <div class="nr-glass p-3 rounded-4 h-100 d-flex flex-column">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <img src="{$basePath}/assets/factions/{$slug}.png" alt="" width="56" height="56" style="object-fit:contain">
+            <div>
+              <div class="fw-bold" style="color:{$group['faction']->getColor()}">Balíček {$group['faction']->getName()}</div>
+              <small style="opacity:.75">{$group['count']}× v batohu</small>
+            </div>
+          </div>
+          <div class="mt-auto">
+            {include openControls, key: $slug, available: $group['count'], max: $maxOpenAtOnce}
+          </div>
+        </div>
+      </div>
+    </div>
+  {else}
+    <div class="nr-glass p-4 rounded-4 text-center">
+      Batoh je prázdný. <a n:href="Shop:default">Kup si balíček v obchodě.</a>
+    </div>
+  {/if}
+</div>
+{/block}

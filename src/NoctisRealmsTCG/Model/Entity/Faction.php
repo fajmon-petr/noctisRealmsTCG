@@ -26,6 +26,9 @@ class Faction
 {
     use MagicAccessors;
 
+    /** Neutrální frakce – nedá se zvolit, její karty padají ve všech balíčcích */
+    public const NEUTRAL_SLUG = 'neutral';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]

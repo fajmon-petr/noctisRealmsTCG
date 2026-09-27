@@ -105,10 +105,7 @@
           <div class="fx-card mb-3">
             <div class="fx-card-title">Přispět karty</div>
 
-            {* <form n:action="Faction:contributeCards slug=>$slug" method="post">
-                 {csrfInput}
-                 <button class="btn btn-primary btn-sm" type="submit">Přidat karty</button>
-               </form> *}
+            <a n:href="Player:collection" class="btn btn-sm mt-2">Darovat karty z kolekce</a>
 
             <div class="mt-2">
               <div class="fx-progress" style="--pct:{= min(100, (int)round(($cardsProgress / max(1,$cardsGoal))*100))}%">
@@ -119,22 +116,6 @@
               </div>
             </div>
           </div>
-
-          <div class="fx-card">
-          <div class="fx-card-title">Přispět Dust</div>
-
-          <form action="{link Faction:addDust, slug => $slug}" method="post" class="mt-2">
-            <div class="input-group input-group-sm mb-3">
-              <input type="number"
-                    name="dust"
-                    class="form-control"
-                    min="1"
-                    placeholder="Zadej množství Dust"
-                    required>
-              <button class="btn btn-primary" type="submit">Přispět</button>
-            </div>
-          </form>
-        </div>
         {else}
           <div class="fx-card">
             <div class="fx-card-title">Přispívání</div>

@@ -2,6 +2,7 @@
 
 namespace App\Presenters;
 
+use App\Model\Entity\Rarity;
 use App\Model\Modules\Faction\FactionFacade;
 use App\Model\Modules\Season\SeasonFacade;
 use Nette;
@@ -45,11 +46,11 @@ final class FactionPresenter extends BasePresenter
         $this->template->season = $seasonEntity;
         $this->template->seasonStats = $stats;
         $this->template->factionCards = [
-            'common' => $cards['C'],
-            'uncommon' => $cards['U'],
-            'rare' => $cards['R'],
-            'epic' => $cards['E'],
-            'legendary' => $cards['L'],
+            'common' => $cards[Rarity::COMMON],
+            'uncommon' => $cards[Rarity::UNCOMMON],
+            'rare' => $cards[Rarity::RARE],
+            'epic' => $cards[Rarity::EPIC],
+            'legendary' => $cards[Rarity::LEGENDARY],
         ];
         $this->template->achievementsUpcoming = $this->factionFacade->getFactionAchievements();
         $this->template->belongsToFaction = $player?->getFaction()?->getId() === $faction->getId();
@@ -62,18 +63,5 @@ final class FactionPresenter extends BasePresenter
         $this->template->dustProgress = 100;
         $this->template->cardsGoal = 1000;
         $this->template->cardsProgress = 100;
-    }
-
-    public function actionAddDust(string $slug): void
-    {
-        $amount = (int) $this->getHttpRequest()->getPost('dust');
-        if ($amount <= 0) {
-            $this->flashMessage('Zadej kladné množství Dustu.', 'warning');
-            $this->redirect('default', $slug);
-        }
-
-        // ... logika přidání dustu do frakce ...
-        $this->flashMessage("Přispěl jsi $amount Dust.", 'success');
-        $this->redirect('default', $slug);
     }
 }

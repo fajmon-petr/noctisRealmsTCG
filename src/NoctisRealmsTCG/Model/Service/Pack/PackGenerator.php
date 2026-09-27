@@ -43,6 +43,21 @@ class PackGenerator
     }
 
     /**
+     * Náhodný prvek seznamu (rovnoměrně) – např. konkrétní karta z vylosované rarity.
+     *
+     * @template T
+     * @param list<T> $items
+     * @return T
+     */
+    public function pickRandom(array $items): mixed
+    {
+        if ($items === []) {
+            throw new \InvalidArgumentException('Není z čeho vybírat.');
+        }
+        return $items[$this->randomizer->getInt(0, count($items) - 1)];
+    }
+
+    /**
      * Vážený výběr podle šancí. Šance nemusí dávat součet 100 – berou se poměrově.
      *
      * @param array<string, float|int> $chances kód rarity => šance

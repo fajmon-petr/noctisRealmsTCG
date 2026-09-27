@@ -96,8 +96,39 @@ Spuštění migrací na `noctis` / `noctis_test` jen s potvrzením.
    - Entity `PlayerCard` (`add()`, `remove()` nedovolí odebrat poslední kus, `getDonatableQuantity()`), `PlayerPack` (`open()`, `addCard()`, `isOpened()`), `PlayerPackCard`
    - `PackRules::GUARANTEE_CHANCES` podle varianty B: rare+ = R 90 / E 10, epic+ = E 100, legendary = L 100; testy upraveny
    - `orm:validate-schema`: zbývají jen 2 známé rozdíly `ON UPDATE CASCADE` (viz refaktor B10)
-4. Infrastruktura integračních testů
-5. `PackFacade` (nákup do batohu, otevření) + integrační testy
-6. `CollectionFacade` (darování) + oprava `FactionStatsFacade` + integrační testy
-7. UI: obchod, batoh, výsledek otevření, kolekce s darováním
-8. Úklid: `Pack.php`, `PlayerSeasonStats::addCard()`, `actionAddDust()`
+4. ✅ Infrastruktura integračních testů
+   - `config/test.neon` (DB `noctis_test`), `Bootstrap::bootTestContainer()`
+   - `tests/Support/IntegrationTestCase.php` – čerstvý kontejner na test, transakce + rollback, sériový běh (zámek), ochrana proti DB bez `_test`, pomocné metody pro data
+   - `composer.json` → `autoload-dev` pro `Tests\Support\`
+   - Testy: `tests/Support/IntegrationTestCase.phpt` (správná DB, rollback opravdu maže, pomocné metody), `tests/Model/Modules/Player/PlayerFacade.phpt` (7 testů – profil jen jednou, bonus jen při první volbě, neplatná frakce nic nezmění, uložení do DB). Ověřeno mutací, že test chytí chybu; `noctis_test` po testech prázdná.
+   - Návod v `CLAUDE.md` → Testy
+5. ✅ `PackFacade` (nákup do batohu, otevření) + integrační testy
+   - `Model/Modules/Pack/PackFacade.php`: `buy()` (1–10 balíčků, jen volitelná frakce, zámek hráče + kontrola MD), `open()` (vlastník, neotevřený, neprázdný pool; pořadí otevření → garance → karty z frakce + neutrální → `player_pack_card` + kolekce), `getBackpack()`, `getPlayerPack()`, `getBaseChances()`
+   - Chybějící rarita v poolu: běžný slot → nižší, garantovaný → nejdřív vyšší
+   - `PackException` – chyby pro hráče (česky); všechny kontroly **před** změnou dat, transakce řízená ručně (ne `wrapInTransaction`, ten by při výjimce zavřel EntityManager a presenter by nevykreslil hlášku)
+   - `Faction::NEUTRAL_SLUG`, `PackRules::MAX_BUY_AT_ONCE = 10`, `PackGenerator::pickRandom()`
+   - Testy: `tests/Model/Modules/Pack/PackFacade.phpt` – 18 testů (nákup, uložení, nedostatek MD bez změn a s použitelným EM, neutrální frakce, počty; otevření 5 karet do kolekce, stejná karta = víc kusů, cizí / dvakrát otevřený / prázdný pool beze změn, pool jen frakce + neutrální, garance 5./10./20., náhrada chybějící rarity, pořadí napříč frakcemi). Mutace (kontrola vlastníka, počítadlo, kontrola MD) testy chytí.
+   - Pozn. k nasazení: mimo debug režim Doctrine negeneruje proxy třídy automaticky → na produkci po nasazení `php console.php orm:generate-proxies`. Testovací kontejner běží v debug režimu.
+5b. ✅ UI balíčků (předsunuto z kroku 7, aby šlo zkoušet v prohlížeči)
+   - Obchod: sekce „Balíčky“ (3 frakce, počet 1–10, Koupit → batoh); `ShopPresenter::createComponentBuyPackForm()` (Multiplier podle frakce, CSRF)
+   - Batoh `Player:backpack`: neotevřené balíčky podle frakce, Otevřít (nejstarší balíček frakce), počet otevřených, další garance, „do garance zbývá“
+   - Výsledek `Player:pack/<id>`: 5 karet s barvou rarity, štítek „Garance“; cizí/neotevřený balíček → 404
+   - Menu: odkaz „Batoh“; `FactionFacade::getBySlug()`
+   - Testovací data v `noctis` (s potvrzením): `db/seeds/TestCardSeeder.php` (chybějící rarity pro každou frakci → 20 karet, na `*_test` DB se přeskočí), `claude-test` 5 000 MD
+   - Ověřeno bez zápisu do DB: stránky se vykreslí, neplatný počet ukáže chybu. Nákup/otevření zkouší uživatel.
+   - Otevírání více balíčků (přání uživatele): `PackFacade::openMany(hráč, frakce|null, počet)` (max. `PackRules::MAX_OPEN_AT_ONCE = 50`, každý balíček ve vlastní transakci), `getBackpackSummary()`; batoh: u frakce počet + „Otevřít“ + „Otevřít vše (N)“, nahoře „Všechny balíčky“; výsledek `Player:opened?ids=1-2-3` (souhrn rarit, všechny balíčky, „Otevřít další“ pro stejnou frakci, kolik zbývá v batohu, garance); `Player:pack/<id>` přesměruje na nový výsledek. Sdílené bloky `templates/Player/@packs.latte`. Testy `openMany` (4).
+   - 🐛 Nalezeno uživatelem: stránka výsledku padala (`Property 'name' not writable on …Proxy…\Rarity`). Příčina: Doctrine při inicializaci lazy proxy zapisuje vlastnosti přes `__set` a `MagicAccessors` to posílal do setterů (`Rarity` žádné nemá). Oprava v `MagicAccessors::__set` – deklarované vlastnosti se zapisují přímo. Regresní test `testOtevrenyBalicekJdeZnovuNacist`. Tím je vyřešena i dřívější třída chyb (viz `setAvatar` v refaktoru B10).
+6. ✅ `CollectionFacade` (darování) + oprava `FactionStatsFacade` + integrační testy
+   - `Model/Modules/Card/CollectionFacade.php`: `getCollection()` (od nejvzácnějších), `donate(hráč, karta, počet)` → `DonationResult` (karta, počet, frakce, MD, body). Kontroly před změnou dat: počet ≥ 1, hráč má frakci, probíhá sezóna, karta je v kolekci, zůstane ≥ 1 kus. Frakce je **vždy frakce hráče** (nebere se z požadavku). Zámek hráče i řádku kolekce.
+   - Body: `SeasonStatsFacade::addContribution()` (hráč) a `FactionStatsFacade::addContribution()` (frakce) – atomický `INSERT … ON DUPLICATE KEY UPDATE`; obě metody opraveny (neexistující sloupce `cards_*`, staré tabulky `faction_season_stats`/`factions`), sezóna povinná (`faction_season_stat.season_id` je NOT NULL). Z `FactionStatsFacade` odstraněna nepoužívaná duplicitní `getSeasonStatsView()`, `getLeaderboard()`/`setFinalRank()` opraveny (bez testů – použijí se u uzavírání sezón).
+   - Společné: `App\Model\UserException` (základ `PackException`, `DonationException`), trait `App\Model\Database\ManualTransaction` (vytaženo z `PackFacade`).
+   - Testy: `tests/Model/Modules/Card/CollectionFacade.phpt` – 12 testů (MD a kusy, body hráči i frakci podle rarity, sčítání opakovaných darů, poslední kus, víc než duplikáty, karta mimo kolekci / cizí, neplatný počet, hráč bez frakce, body vždy vlastní frakci, bez sezóny, řazení kolekce). Mutace (frakce karty místo hráče, poslední kus, frakce bez bodů, bez MD) testy chytí.
+   - UI (6b): `Player:collection` – kolekce s filtrem rarity, počet kusů, formulář Darovat (max. duplikáty), info o frakci/sezóně a hodnotách; menu „Kolekce“; na stránce frakce „Darovat karty z kolekce“ místo zakomentovaného formuláře.
+7. ✅ UI: obchod, batoh, výsledek otevření, kolekce s darováním (většina v 5b a 6), doplněn profil: akce Kolekce / Batoh (počet neotevřených) / Obchod, sekce „Karty“ s odkazy místo „Seznam (WIP)“, odznaky zůstávají WIP
+8. ✅ Úklid: smazány prázdné `Model/Entity/Pack.php` a `Model/Modules/Player/FormFactory.php`, `PlayerSeasonStats::addCard()` (prázdné TODO), `FactionPresenter::actionAddDust()` (stub bez kontroly a ukládání) + formulář „Přispět Dust“ na stránce frakce; kódy rarit `'C'…'L'` v PHP nahrazeny konstantami `Rarity::*` (`FactionFacade`, `FactionPresenter`, `SeasonStatsFacade`, `FactionStatsFacade`)
+
+## Stav k uzavření (2026-09-27)
+
+- Hotovo: rarity v DB, balíčky (nákup do batohu, otevírání jednotlivě i hromadně, garance), kolekce, darování do vlastní frakce, UI pro všechno, unit + integrační testy (7 souborů), PHPStan bez chyb.
+- Zůstává mimo tento plán: grafika a animace (React), obrázky skutečných karet (testovací karty z `TestCardSeeder`), placeholdery na stránce frakce (level frakce, cíle Dust/karet), login bonus, uzavírání sezón (`FactionStatsFacade::getLeaderboard()`/`setFinalRank()` bez testů), úprava darování podle nové myšlenky autora.
+- `orm:validate-schema`: jen 2 známé rozdíly `ON UPDATE CASCADE`.

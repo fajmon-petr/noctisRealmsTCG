@@ -46,6 +46,11 @@
 			]
 		}
 	},
+	"autoload-dev": {
+		"psr-4": {
+			"Tests\\Support\\": "tests/Support/"
+		}
+	},
 	"scripts": {
 		"phpstan": "phpstan analyse",
 		"tester": "tester tests -s"

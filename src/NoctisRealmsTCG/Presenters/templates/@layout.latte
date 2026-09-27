@@ -55,6 +55,8 @@
 		<a n:href="Home:default" n:class="$presenter->isLinkCurrent('Home:*') ? active">Domů</a>
 		<a n:href="Faction:default" n:class="$presenter->isLinkCurrent('Faction:*') ? active" n:if="$user->isLoggedIn()">Frakce</a>
 		<a n:href="Shop:default" n:class="$presenter->isLinkCurrent('Shop:*') ? active" n:if="$user->isLoggedIn()">Obchod</a>
+		<a n:href="Player:backpack" n:class="$presenter->isLinkCurrent('Player:backpack') || $presenter->isLinkCurrent('Player:opened') ? active" n:if="$user->isLoggedIn()">Batoh</a>
+		<a n:href="Player:collection" n:class="$presenter->isLinkCurrent('Player:collection') ? active" n:if="$user->isLoggedIn()">Kolekce</a>
 		<a class="btn btn-ghost" n:href="Player:default" n:if="$user->isLoggedIn()">Moje karta</a>
 		<a n:href="Home:logout" n:if="$user->isLoggedIn()">Odhlásit</a>
 	</nav>

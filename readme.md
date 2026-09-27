@@ -34,6 +34,10 @@ Instalace
 
 4. Adresáře `temp/` a `log/` musí být zapisovatelné.
 
+5. Produkce (mimo debug režim): Doctrine negeneruje proxy třídy automaticky, po každém nasazení spusť:
+
+		php console.php orm:generate-proxies
+
 
 Spuštění
 --------
