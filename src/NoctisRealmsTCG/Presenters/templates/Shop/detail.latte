@@ -2,5 +2,5 @@
 <h1>{$item->getName()}</h1>
 <img src="{$basePath}{$item->getImagePath()}" alt="{$item->getName()}">
 <p n:if="$item->getFaction()">Frakce: {$item->getFaction()->getName()}</p>
-<p>Rarita: {$item->getRarity()}</p>
+<p>Rarita: {$item->getRarity()->getName()}</p>
 {/block}

@@ -4,6 +4,7 @@ services:
 	- App\Security\UserAuthenticator
 
 	- App\Model\Service\LevelingService
+	- App\Model\Service\Pack\PackGenerator
 
 	- App\Model\Modules\User\UserFacade
 

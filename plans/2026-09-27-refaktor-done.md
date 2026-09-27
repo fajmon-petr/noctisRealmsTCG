@@ -27,7 +27,7 @@ Ověřeno (2026-09-27): `/`, `/shop/` (+ filtry), `/shop/detail/1`, `/faction/`,
 - ✅ B6: Konvence zapsaná v `CLAUDE.md` – v PHP gettery, v šablonách property zápis
 - ✅ B7: `getFactionBySlugOrDefault()` – slug, jinak `DEFAULT_SLUG = 'ignis'`
 - ✅ B8: Smazán `app/Presentation/Home/*` (+ `composer dump-autoload`); `app/Presentation/@layout.latte` zůstává (používají ho chybové stránky); `Pack.php`, `FormFactory.php` ponechány
-- 🔶 B9: Migrace → **Phinx** (rozhodnutí uživatele 2026-09-27)
+- ✅ B9: Migrace → **Phinx** (rozhodnutí uživatele 2026-09-27)
   - ✅ `nettrine/migrations` odebrán, `robmorgan/phinx ^0.16` přidán (Composer zároveň povýšil Symfony 7.3 → 7.4); `allow-plugins.phpstan/extension-installer: false`
   - ✅ `phinx.php` – připojení z `config/doctrine.neon`, prostředí `development` (`noctis`) a `testing` (`noctis_test`)
   - ✅ `db/migrations/20260927000000_initial_schema.php` – baseline = přesná kopie aktuálního schématu
@@ -35,17 +35,18 @@ Ověřeno (2026-09-27): `/`, `/shop/` (+ filtry), `/shop/detail/1`, `/faction/`,
   - ✅ Staré SQL přesunuty do `db/legacy/`
   - ✅ Oprava konzole: `console.php` přes `Bootstrap::bootConsoleApplication()`, `ConsoleExtension(%consoleMode%)`, odstraněná duplicitní deklarace – funguje `orm:validate-schema`
   - ✅ Ověřeno na nové DB `noctis_test` (s potvrzením): baseline + seedy → schéma identické s `noctis`, data rolí/frakcí/sezón/achievementů shodná. `noctis_test` zůstává pro integrační testy.
-  - ⏳ Označit baseline v `noctis` jako provedenou (`phinx migrate --fake`) – uživatel zatím nepotvrdil
+  - ✅ Baseline v `noctis` označena jako provedená (`phinx migrate --fake`, s potvrzením) – `phinx status`: `up`, schéma i data beze změny
   - Pozn.: `phinx status` omylem vytvořil prázdnou tabulku `phinxlog` v `noctis`
-- ⏳ B10: **Soulad entit s DB** – `orm:validate-schema` hlásí nesoulad. Rizikové rozdíly (mohou shodit hydrataci entit):
-  - `achievement.type` – DB `NULL` povoleno (4 z 5 záznamů mají NULL), entita `string` nenullable → načtení takového achievementu jako entity spadne
-  - `player_season_stat.final_rank` – DB nullable, entita `int` → spadne u sezón bez finálního pořadí (při hydrataci entity; `allSeasonsWithMyStats` používá pole, proto se zatím neprojevilo)
-  - `faction_season_stat.season_id` – DB `NOT NULL`, entita nullable (a `FactionFacade::getSeasonStats()` počítá se `season = NULL`)
-  - `faction` – entita nemá sloupce `banner`, `perk`, `is_selectable`
-  - `player_season_stat.last_update_at` – v DB je, v entitě ne
-  - rozdíly `unsigned` u id (`achievement`, `*_achievement`, `role`) a u `player.level`/`xp`, `player.avatar` (DB 100 znaků, entita 64)
-  - Kosmetické (názvy indexů, `TEXT`/`LONGTEXT`, výchozí hodnoty) – lze ignorovat
-  - Rozhodnutí, zda upravit entity nebo DB (migrací), je na uživateli
+- ✅ B10: **Soulad entit s DB** – upraveny **jen entity podle DB** (DB beze změny, obsahuje reálná data):
+  - `Achievement::$type` nullable (`?string`, výchozí `null` místo `'created'`) – dřív by načtení 4 z 5 achievementů spadlo
+  - `FactionSeasonStats::$season` povinná (`NOT NULL`, `CASCADE` jako v DB); odebrán nepoužitý `setLastUpdateAt()`
+  - `Faction` – doplněny `banner`, `perk`, `selectable` (`is_selectable`) + gettery/settery
+  - `PlayerSeasonStats` – odstraněno dvojí mapování `season_id` (vztah + `int`), `getSeasonId(): ?int` přes vztah; doplněn `last_update_at` (plní DB)
+  - Sjednocené `unsigned`, délky (`avatar` 100, `emblem` varchar 255), výchozí hodnoty, `TEXT` a **názvy indexů** (samostatné `#[ORM\Index]`/`#[ORM\UniqueConstraint]` – Doctrine 3 ignoruje `uniqueConstraints:` v `#[ORM\Table]`)
+  - `IgnorePhinxlogFilter` – Doctrine ignoruje tabulku `phinxlog`
+  - **Nalezená a opravená chyba:** `Player::setAvatar(string)` → `?string`. Při inicializaci Doctrine proxy (např. hráč načtený přes statistiky) šla hydratace přes `MagicAccessors::__set` a hráč bez avataru shodil stránku. Pravidlo zapsáno do `CLAUDE.md`.
+  - Ověřeno: všechny entity se načtou v libovolném pořadí vč. proxy, PHPStan bez chyb, testy OK, stránky anonymně i přihlášeně 200
+  - Zbývá (rozhodnutí uživatele): 2 cizí klíče s `ON UPDATE CASCADE` (`player_season_stat.season_id`, `user.role_id`) – v mapování Doctrine nejdou vyjádřit, `orm:validate-schema` je proto hlásí. Srovnat by šlo jen migrací v DB; prakticky nevadí (ID se nemění).
 
 Poznámka: `Model/Modules/Faction/FactionStatsFacade.php` se nikde nepoužívá a pracuje se starými názvy tabulek/sloupců (`faction_season_stats`, `factions`, `cards_common`…). Patří k rozšíření (body 5–8) – opravit, až se bude používat.
 
@@ -53,6 +54,13 @@ Ověřeno (2026-09-27): všechny stránky anonymně i přihlášeně (`claude-te
 
 ## Fáze C – kvalita
 
-- C1: `composer phpstan` a oprava nálezů
-- C2: První testy (`LevelingService`)
-- C3: Vlastní `readme.md` (instalace, adresa, pořadí migrací)
+- ✅ C1: `composer phpstan` (level 5) na celém projektu – **bez chyb**
+  - Zapnuto `phpstan-doctrine` (extension + rules) – odstranilo falešné nálezy u entit a přidalo kontrolu mapování
+  - Oprava: `PlayerSeasonStats::setFaction()` zapisovalo do `$this->setFaction` (→ `LogicException` z `MagicAccessors`)
+  - Oprava: mapování `PlayerSeasonStats::$finalRank` doplněno o `nullable: true` (odpovídá DB i typu vlastnosti – řeší jednu položku B10)
+  - `User::$role` jako `Role` (ne nullable) – v DB je povinná
+  - `FactionStatsFacade` – odebrán nepoužívaný `$em`
+- ✅ C2: `tests/Model/Service/LevelingService.phpt` – 8 testů (křivka, level pod 1, přenos XP, víc levelů naráz, záporný zisk, procenta). Ověřeno, že test při chybné hodnotě selže.
+- ✅ C3: Vlastní `readme.md` (popis, požadavky, instalace s Phinxem, spuštění, vývojové příkazy)
+
+Poznámka: `config/local.neon` se v `Bootstrap` nenačítá a obsahuje nepoužívané parametry (`dbname: test`). Připojení k DB je jen v `config/doctrine.neon`.

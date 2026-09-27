@@ -11,11 +11,17 @@ use Doctrine\ORM\Mapping as ORM;
  * @property string $name
  * @property string $color
  * @property string|null $description
+ * @property string|null $emblem
+ * @property string|null $banner
+ * @property string|null $perk
+ * @property bool $selectable
  * @property int $playersCount
  * @property int $factionPoints
  */
 #[ORM\Entity]
 #[ORM\Table(name: "faction")]
+#[ORM\UniqueConstraint(name: "UNIQ_factions_slug", columns: ["slug"])]
+#[ORM\Index(name: "IDX_factions_selectable", columns: ["is_selectable"])]
 class Faction
 {
     use MagicAccessors;
@@ -25,7 +31,7 @@ class Faction
     #[ORM\Column(type: "integer")]
     private int $id;
 
-    #[ORM\Column(type: "string", length: 32, unique: true)]
+    #[ORM\Column(type: "string", length: 32)]
     private string $slug;
 
     #[ORM\Column(type: "string", length: 64)]
@@ -34,16 +40,26 @@ class Faction
     #[ORM\Column(type: "string", length: 7, options: ["fixed" => true])]
     private string $color;
 
-    #[ORM\Column(type: "text", nullable: true)]
+    #[ORM\Column(type: "text", length: 65535, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(type: "text", nullable: true)]
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private ?string $emblem = null;
 
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    private ?string $banner = null;
+
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    private ?string $perk = null;
+
+    /** Lze frakci zvolit při registraci (neutrální ne) */
+    #[ORM\Column(name: "is_selectable", type: "boolean", options: ["default" => 1])]
+    private bool $selectable = true;
+
+    #[ORM\Column(type: "integer", options: ["default" => 0])]
     private int $playersCount = 0;
 
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: "integer", options: ["default" => 0])]
     private int $factionPoints = 0;
 
     public function getId(): int
@@ -99,6 +115,36 @@ class Faction
     public function setEmblem(?string $emblem): void
     {
         $this->emblem = $emblem;
+    }
+
+    public function getBanner(): ?string
+    {
+        return $this->banner;
+    }
+
+    public function setBanner(?string $banner): void
+    {
+        $this->banner = $banner;
+    }
+
+    public function getPerk(): ?string
+    {
+        return $this->perk;
+    }
+
+    public function setPerk(?string $perk): void
+    {
+        $this->perk = $perk;
+    }
+
+    public function isSelectable(): bool
+    {
+        return $this->selectable;
+    }
+
+    public function setSelectable(bool $selectable): void
+    {
+        $this->selectable = $selectable;
     }
 
     public function getPlayersCount(): int

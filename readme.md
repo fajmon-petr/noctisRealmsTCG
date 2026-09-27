@@ -1,64 +1,63 @@
-Nette Web Project
+Noctis Realms TCG
 =================
 
-Welcome to the Nette Web Project! This is a basic skeleton application built using
-[Nette](https://nette.org), ideal for kick-starting your new web projects.
+Webová sběratelská karetní hra. Hráč si vybere jednu ze tří frakcí (Ignis, Vitae, Noctis),
+sbírá Moon Dust, XP a karty (rarity C/U/R/E/L) a svými kartami přispívá body frakci
+v sezónních žebříčcích.
 
-Nette is a renowned PHP web development framework, celebrated for its user-friendliness,
-robust security, and outstanding performance. It's among the safest choices
-for PHP frameworks out there.
-
-If Nette helps you, consider supporting it by [making a donation](https://nette.org/donate).
-Thank you for your generosity!
+Postaveno na Nette 3.2, Latte 3, Doctrine ORM 3 a MySQL/MariaDB.
 
 
-Requirements
-------------
+Požadavky
+---------
 
-This Web Project is compatible with Nette 3.2 and requires PHP 8.1.
-
-
-Installation
-------------
-
-To install the Web Project, Composer is the recommended tool. If you're new to Composer,
-follow [these instructions](https://doc.nette.org/composer). Then, run:
-
-	composer create-project nette/web-project path/to/install
-	cd path/to/install
-
-Ensure the `temp/` and `log/` directories are writable.
+- PHP 8.2+ (rozšíření `pdo_mysql`)
+- MySQL / MariaDB
+- Composer
+- Apache s `mod_rewrite` (např. XAMPP), případně vestavěný PHP server
 
 
-Asset Building with Vite
-------------------------
+Instalace
+---------
 
-This project supports Vite for asset building, which is recommended but optional. To activate Vite:
+1. Závislosti:
 
-1. Uncomment the `type: vite` line in the `common.neon` configuration file under the assets mapping section.
-2. Then set up and build the assets:
+		composer install
 
-		npm install
-		npm run build
+2. Připojení k databázi je v `config/doctrine.neon` (sekce `doctrine.dbal`).
+   Stejné nastavení používají i migrace (`phinx.php`).
 
+3. Vytvoř databázi (výchozí název `noctis`, kódování `utf8mb4`) a nahraj schéma a základní data:
 
-Web Server Setup
-----------------
+		php vendor/bin/phinx migrate
+		php vendor/bin/phinx seed:run
 
-To quickly dive in, use PHP's built-in server:
-
-	php -S localhost:8000 -t www
-
-Then, open `http://localhost:8000` in your browser to view the welcome page.
-
-For Apache or Nginx users, configure a virtual host pointing to your project's `www/` directory.
-
-**Important Note:** Ensure `app/`, `config/`, `log/`, and `temp/` directories are not web-accessible.
-Refer to [security warning](https://nette.org/security-warning) for more details.
+4. Adresáře `temp/` a `log/` musí být zapisovatelné.
 
 
-Minimal Skeleton
-----------------
+Spuštění
+--------
 
-For demonstrating issues or similar tasks, rather than starting a new project, use
-[minimal skeleton](https://github.com/nette/web-project/tree/minimal).
+- XAMPP: projekt v `htdocs/noctisRealmsTCG` → http://localhost/noctisRealmsTCG/www/
+- Vestavěný server:
+
+		php -S localhost:8000 -t www
+
+Veřejně dostupná má být jen složka `www/` (kořenový `.htaccess` zbytek blokuje).
+
+
+Vývoj
+-----
+
+	php vendor/bin/tester tests -s -C     # testy (Nette Tester)
+	composer phpstan                      # statická analýza
+	php vendor/bin/latte-lint src         # kontrola Latte šablon
+	php console.php orm:validate-schema   # soulad entit s databází
+
+Migrace (Phinx) jsou v `db/migrations`, seedery v `db/seeds`. Nová migrace:
+
+	php vendor/bin/phinx create NazevZmeny
+
+Prostředí `testing` pracuje s databází `noctis_test` (`-e testing`).
+
+Pravidla projektu, struktura a konvence jsou popsané v `CLAUDE.md`, plány práce ve složce `plans/`.

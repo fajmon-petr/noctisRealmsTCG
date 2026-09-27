@@ -6,6 +6,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'card')]
+#[ORM\Index(name: 'fk_card_faction', columns: ['faction_id'])]
+#[ORM\Index(name: 'fk_card_rarity', columns: ['rarity'])]
 class Card
 {
     #[ORM\Id]
@@ -20,13 +22,14 @@ class Card
     #[ORM\Column(type: 'string', length: 120)]
     private string $name;
 
-    #[ORM\Column(type: 'string', length: 1)]
-    private string $rarity; // C, U, R, E, L
+    #[ORM\ManyToOne(targetEntity: Rarity::class, fetch: 'EAGER')]
+    #[ORM\JoinColumn(name: 'rarity', referencedColumnName: 'code', nullable: false)]
+    private Rarity $rarity;
 
     #[ORM\Column(type: 'string', length: 255)]
     private string $imagePath; // např. '/assets/cards/ignis-001.png'
 
-    public function __construct(string $name, string $rarity, string $imagePath)
+    public function __construct(string $name, Rarity $rarity, string $imagePath)
     {
         $this->name = $name;
         $this->rarity = $rarity;
@@ -60,12 +63,12 @@ class Card
         return $this;
     }
 
-    public function getRarity(): string
+    public function getRarity(): Rarity
     {
         return $this->rarity;
     }
 
-    public function setRarity(string $rarity): self
+    public function setRarity(Rarity $rarity): self
     {
         $this->rarity = $rarity;
         return $this;

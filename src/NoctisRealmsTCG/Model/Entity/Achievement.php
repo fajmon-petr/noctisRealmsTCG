@@ -12,7 +12,7 @@ class Achievement
 {
     use MagicAccessors;
 
-    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer", options: ["unsigned" => true])]
+    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer")]
     private int $id;
 
     #[ORM\Column(type: "string", length: 100)]
@@ -21,7 +21,7 @@ class Achievement
     #[ORM\Column(type: "string", length: 150)]
     private string $name;
 
-    #[ORM\Column(type: "text", nullable: true)]
+    #[ORM\Column(type: "text", length: 65535, nullable: true)]
     private ?string $description = null;
 
     #[ORM\Column(type: "integer", options: ["default" => 0])]
@@ -30,10 +30,11 @@ class Achievement
     #[ORM\Column(type: "string", length: 255, nullable: true)]
     private ?string $icon = null;
 
-    #[ORM\Column(type: "string", length: 100)]
-    private string $type;
+    /** null = hráčský achievement, "faction" = frakční */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    private ?string $type = null;
 
-    #[ORM\Column(type: "datetime")]
+    #[ORM\Column(type: "datetime", options: ["default" => "CURRENT_TIMESTAMP"])]
     private \DateTimeInterface $createdAt;
 
     public function __construct(
@@ -42,7 +43,7 @@ class Achievement
         ?string $description = null,
         int     $points = 0,
         ?string $icon = null,
-        string  $type = 'created'
+        ?string $type = null
     )
     {
         $this->code = $code;
@@ -85,7 +86,7 @@ class Achievement
         return $this->icon;
     }
 
-    public function getType(): string
+    public function getType(): ?string
     {
         return $this->type;
     }
@@ -126,7 +127,7 @@ class Achievement
         return $this;
     }
 
-    public function setType(string $type): self
+    public function setType(?string $type): self
     {
         $this->type = $type;
         return $this;

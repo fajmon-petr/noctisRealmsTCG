@@ -11,6 +11,7 @@ doctrine.dbal:
             user: root
             password: ""
             dbname: noctis
+            schemaAssetsFilter: App\Model\Database\IgnorePhinxlogFilter()
 
 doctrine.orm:
     managers:

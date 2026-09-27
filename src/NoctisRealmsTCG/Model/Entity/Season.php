@@ -6,11 +6,9 @@ use App\Utils\MagicAccessors;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(
-    name: "season",
-    uniqueConstraints: [new ORM\UniqueConstraint(name: "uniq_season_number", columns: ["number"])],
-    indexes: [new ORM\Index(name: "idx_season_dates", columns: ["start_at", "end_at"])]
-)]
+#[ORM\Table(name: "season")]
+#[ORM\UniqueConstraint(name: "number", columns: ["number"])]
+#[ORM\Index(name: "idx_season_dates", columns: ["start_at", "end_at"])]
 class Season
 {
     use MagicAccessors;

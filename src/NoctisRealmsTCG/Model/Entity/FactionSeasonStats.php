@@ -6,10 +6,9 @@ use App\Utils\MagicAccessors;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(
-    name: "faction_season_stat",
-    uniqueConstraints: [new ORM\UniqueConstraint(name: "uniq_faction_season", columns: ["faction_id", "season_id"])]
-)]
+#[ORM\Table(name: "faction_season_stat")]
+#[ORM\UniqueConstraint(name: "idx_faction_season", columns: ["faction_id", "season_id"])]
+#[ORM\Index(name: "fk_fss_season", columns: ["season_id"])]
 class FactionSeasonStats
 {
     use MagicAccessors;
@@ -22,33 +21,34 @@ class FactionSeasonStats
     private Faction $faction;
 
     #[ORM\ManyToOne(targetEntity: Season::class)]
-    #[ORM\JoinColumn(name: "season_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
-    private ?Season $season = null;
+    #[ORM\JoinColumn(name: "season_id", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
+    private Season $season;
 
     // body a pořadí
-    #[ORM\Column(name: "points_total", type: "integer")]
+    #[ORM\Column(name: "points_total", type: "integer", options: ["default" => 0])]
     private int $pointsTotal = 0;
 
     #[ORM\Column(name: "final_rank", type: "integer", nullable: true)]
     private ?int $finalRank = null;
 
     // rozpad podle rarity
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: "integer", options: ["default" => 0])]
     private int $common = 0;
 
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: "integer", options: ["default" => 0])]
     private int $uncommon = 0;
 
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: "integer", options: ["default" => 0])]
     private int $rare = 0;
 
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: "integer", options: ["default" => 0])]
     private int $epic = 0;
 
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: "integer", options: ["default" => 0])]
     private int $legendary = 0;
 
-    #[ORM\Column(name: "last_update_at", type: "datetime")]
+    /** Plní DB (DEFAULT / ON UPDATE CURRENT_TIMESTAMP) */
+    #[ORM\Column(name: "last_update_at", type: "datetime", insertable: false, updatable: false, generated: "ALWAYS", options: ["default" => "CURRENT_TIMESTAMP"])]
     private \DateTimeInterface $lastUpdateAt;
 
     // ---- getters / setters ----
@@ -68,19 +68,19 @@ class FactionSeasonStats
         $this->faction = $faction;
     }
 
-    public function getSeason(): ?Season
+    public function getSeason(): Season
     {
         return $this->season;
     }
 
-    public function setSeason(?Season $season): void
+    public function setSeason(Season $season): void
     {
         $this->season = $season;
     }
 
-    public function getSeasonId(): ?int
+    public function getSeasonId(): int
     {
-        return $this->season?->getId();
+        return $this->season->getId();
     }
 
     public function getPointsTotal(): int
@@ -156,10 +156,5 @@ class FactionSeasonStats
     public function getLastUpdateAt(): \DateTimeInterface
     {
         return $this->lastUpdateAt;
-    }
-
-    public function setLastUpdateAt(\DateTimeInterface $dt): void
-    {
-        $this->lastUpdateAt = $dt;
     }
 }

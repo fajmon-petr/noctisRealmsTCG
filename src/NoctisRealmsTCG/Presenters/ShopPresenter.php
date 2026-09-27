@@ -25,6 +25,7 @@ final class ShopPresenter extends BasePresenter
         $paginator = $this->cardFacade->search($q, $rarity, $faction, $sort, $page, self::PER_PAGE);
 
         $this->template->items   = iterator_to_array($paginator);
+        $this->template->rarities = $this->cardFacade->getRarities();
         $this->template->filters = [
             'search'  => $q,
             'rarity'  => $rarity,

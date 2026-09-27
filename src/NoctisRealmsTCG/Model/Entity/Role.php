@@ -7,12 +7,13 @@ use Doctrine\ORM\Mapping as ORM;
 /** @property-read int $id */
 #[ORM\Entity]
 #[ORM\Table(name: "role")]
+#[ORM\UniqueConstraint(name: "slug", columns: ["slug"])]
 class Role
 {
-    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer")]
+    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer", options: ["unsigned" => true])]
     private int $id;
 
-    #[ORM\Column(type: "string", length: 32, unique: true)]
+    #[ORM\Column(type: "string", length: 32)]
     private string $slug;
 
     #[ORM\Column(type: "string", length: 64)]

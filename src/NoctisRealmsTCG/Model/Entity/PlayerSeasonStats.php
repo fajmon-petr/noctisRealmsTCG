@@ -6,9 +6,10 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Model\Entity\Faction;
 
 #[ORM\Entity]
-#[ORM\Table(name: "player_season_stat",
-    uniqueConstraints: [new ORM\UniqueConstraint(name: "uniq_player_faction_season", columns: ["player_id", "faction_id", "season_id"])]
-)]
+#[ORM\Table(name: "player_season_stat")]
+#[ORM\UniqueConstraint(name: "uniq_player_faction_season", columns: ["player_id", "faction_id", "season_id"])]
+#[ORM\Index(name: "idx_leaderboard", columns: ["faction_id", "points_total"])]
+#[ORM\Index(name: "idx_pfs_season_points", columns: ["season_id", "points_total"])]
 class PlayerSeasonStats
 {
     use MagicAccessors;
@@ -28,29 +29,30 @@ class PlayerSeasonStats
     #[ORM\JoinColumn(name: "season_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     private ?Season $season = null;
 
-    #[ORM\Column(name: "season_id", type: "integer", nullable: true)]
-    private ?int $seasonId = null;
-
-    #[ORM\Column(name: "points_total", type: "integer", options: ["unsigned" => true])]
+    #[ORM\Column(name: "points_total", type: "integer", options: ["default" => 0])]
     private int $pointsTotal = 0;
 
-    #[ORM\Column(name: "final_rank", type: "integer", options: ["unsigned" => true])]
+    #[ORM\Column(name: "final_rank", type: "integer", nullable: true)]
     private ?int $finalRank = null;
 
-    #[ORM\Column(type: "integer", options: ["unsigned" => true])]
+    #[ORM\Column(type: "integer", options: ["default" => 0])]
     private int $common = 0;
 
-    #[ORM\Column(type: "integer", options: ["unsigned" => true])]
+    #[ORM\Column(type: "integer", options: ["default" => 0])]
     private int $uncommon = 0;
 
-    #[ORM\Column(type: "integer", options: ["unsigned" => true])]
+    #[ORM\Column(type: "integer", options: ["default" => 0])]
     private int $rare = 0;
 
-    #[ORM\Column(type: "integer", options: ["unsigned" => true])]
+    #[ORM\Column(type: "integer", options: ["default" => 0])]
     private int $epic = 0;
 
-    #[ORM\Column(type: "integer", options: ["unsigned" => true])]
+    #[ORM\Column(type: "integer", options: ["default" => 0])]
     private int $legendary = 0;
+
+    /** Plní DB (DEFAULT / ON UPDATE CURRENT_TIMESTAMP) */
+    #[ORM\Column(name: "last_update_at", type: "datetime", insertable: false, updatable: false, generated: "ALWAYS", options: ["default" => "CURRENT_TIMESTAMP"])]
+    private \DateTimeInterface $lastUpdateAt;
 
     public function getPlayer(): Player
     {
@@ -69,7 +71,7 @@ class PlayerSeasonStats
 
     public function setFaction(Faction $faction): void
     {
-        $this->setFaction = $faction;
+        $this->faction = $faction;
     }
 
     public function getSeason(): ?Season
@@ -81,14 +83,14 @@ class PlayerSeasonStats
         $this->season = $season;
     }
 
-    public function getSeasonId(): int
+    public function getSeasonId(): ?int
     {
-        return $this->seasonId;
+        return $this->season?->getId();
     }
 
-    public function setSeasonId($seasonId): void
+    public function getLastUpdateAt(): \DateTimeInterface
     {
-        $this->seasonId = $seasonId;
+        return $this->lastUpdateAt;
     }
 
     public function getPointsTotal(): int

@@ -3,6 +3,7 @@
 namespace App\Model\Modules\Card;
 
 use App\Model\Entity\Card;
+use App\Model\Entity\Rarity;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
@@ -17,25 +18,33 @@ class CardFacade
         return $this->em->find(Card::class, $id);
     }
 
+    /** @return Rarity[] od nejběžnější po nejvzácnější */
+    public function getRarities(): array
+    {
+        return $this->em->getRepository(Rarity::class)->findBy([], ['sortOrder' => 'ASC']);
+    }
+
     /**
      * Vyhledávání karet s filtry a stránkováním.
      *
+     * @param string $rarity kód rarity (C/U/R/E/L)
      * @param string $sort new|name_asc
      * @return Paginator<Card>
      */
     public function search(string $q, string $rarity, string $factionSlug, string $sort, int $page, int $perPage): Paginator
     {
         $qb = $this->em->createQueryBuilder()
-            ->select('c', 'f')
+            ->select('c', 'f', 'r')
             ->from(Card::class, 'c')
-            ->leftJoin('c.faction', 'f');
+            ->leftJoin('c.faction', 'f')
+            ->join('c.rarity', 'r');
 
         if ($q !== '') {
             $qb->andWhere('c.name LIKE :q')->setParameter('q', "%$q%");
         }
 
         if ($rarity !== '') {
-            $qb->andWhere('c.rarity = :rarity')->setParameter('rarity', $rarity);
+            $qb->andWhere('r.code = :rarity')->setParameter('rarity', $rarity);
         }
 
         if ($factionSlug !== '') {

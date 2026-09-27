@@ -7,9 +7,12 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 #[ORM\Table(name: "faction_achievement")]
 #[ORM\UniqueConstraint(name: "uq_faction_achievement", columns: ["faction_id", "achievement_id"])]
+#[ORM\Index(name: "idx_fa_faction", columns: ["faction_id"])]
+#[ORM\Index(name: "idx_fa_achievement", columns: ["achievement_id"])]
+#[ORM\Index(name: "idx_fa_achieved_at", columns: ["achieved_at"])]
 class FactionAchievement
 {
-    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer", options: ["unsigned" => true])]
+    #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: "integer")]
     private int $id;
 
     #[ORM\ManyToOne(targetEntity: Faction::class)]
@@ -20,7 +23,7 @@ class FactionAchievement
     #[ORM\JoinColumn(name: "achievement_id", referencedColumnName: "id", nullable: false, onDelete: "CASCADE")]
     private Achievement $achievement;
 
-    #[ORM\Column(type: "datetime")]
+    #[ORM\Column(type: "datetime", options: ["default" => "CURRENT_TIMESTAMP"])]
     private \DateTimeInterface $achievedAt;
 
     public function __construct(Faction $faction, Achievement $achievement, ?\DateTimeInterface $at = null)

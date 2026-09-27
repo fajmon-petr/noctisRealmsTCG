@@ -3,13 +3,11 @@
 namespace App\Model\Modules\Faction;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManagerInterface;
 
 final class FactionStatsFacade
 {
     public function __construct(
         private Connection $db,
-        private EntityManagerInterface $em,
     ) {}
 
     /**

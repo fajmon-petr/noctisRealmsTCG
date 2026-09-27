@@ -20,4 +20,28 @@ Jen věci, které už jsou v kódu založené (roadmapa v `HomePresenter::render
 
 ## Myšlenky autora
 
-_(doplní se)_
+Rarity zůstávají **common, uncommon, rare, epic, legendary** (C/U/R/E/L) – „mythic“ bylo jen pracovní označení pro epic.
+
+### Balíček (nákup)
+- Balíček obsahuje **5 karet**, stojí **100 Moon Dustu**.
+- Balíčky jsou **podle frakce** (Ignis / Vitae / Noctis) – hráč si vybere, který koupí. Z balíčku padají karty dané frakce + **neutrální karty**.
+- Základní drop šance (na kartu): **legendary 1 %, epic 5 %, rare 10 %, uncommon 30 %, common 54 %** (lze doladit).
+- **Garantovaný slot („nabíjení“)** podle pořadí koupeného balíčku hráče – v jednom balíčku platí vždy **nejvýš jedno** pravidlo, vyšší má přednost:
+  - každý **20.** balíček → 1 karta **legendary** (100 %)
+  - jinak každý **10.** balíček → 1 karta **epic nebo vyšší**: epic 90 %, legendary 10 %
+  - jinak každý **5.** balíček → 1 karta **rare nebo vyšší**: rare 75 %, epic 20 %, legendary 5 %
+  - Příklad: 5. rare+, 10. epic+, 15. rare+, 20. legendary, 25. rare+, 30. epic+, …
+  - Balíček s garancí = 1 karta podle garance + 4 karty podle základních šancí; ostatní balíčky = 5 karet podle základních šancí.
+
+### Darování karet frakci
+- Hodnota karty: **common 5, uncommon 10, rare 25, epic 50, legendary 100**.
+- Za darovanou kartu **hráč dostane tolik Moon Dustu** a **frakce získá stejný počet bodů** (sezónní žebříček).
+- Darovat lze jen karty, které má hráč v kolekci **víc než 1×** – poslední kus si vždy nechá.
+
+Implementace: `plans/2026-09-27-balicky.md`
+
+### K rozhodnutí – příjem Moon Dustu (návrh z analýzy ekonomiky, 2026-09-27)
+- Dnes je jediný zdroj MD jednorázový bonus 200 MD za výběr frakce (+ darování, až bude hotové) → hráč otevře 2 balíčky a dál nemá z čeho kupovat.
+- Návrh: běžný hráč by měl dokončit cyklus 20 balíčků (≈ 1,5 legendary) za **3–4 týdny** → **5–7 balíčků týdně**.
+- Možné zdroje: **denní odměna ~50 MD**, **týdenní úkol ~150 MD** (spolu s darováním ~6–7 balíčků týdně).
+- Zatím jen návrh – rozhodne autor.

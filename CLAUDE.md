@@ -51,6 +51,8 @@ Webová sběratelská karetní hra (TCG). Hráč se zaregistruje, vybere si jedn
 - Presentery dědí z `BasePresenter` (má `$playerFacade`); stránky jen pro přihlášené z `SecuredPresenter`. Závislosti přes konstruktor (promoted properties).
 - Nové fasády/služby registrovat v `config/services.neon` (search prohledává jen `app/`).
 - Přístup k entitám: v PHP kódu vždy gettery/settery; v Latte šablonách je povolený property zápis (`$player->faction->slug`) přes `MagicAccessors`.
+- Entity s `MagicAccessors`: Doctrine při inicializaci proxy nastavuje vlastnosti přes `__set` → settery. Setter sloupce, který může být v DB `NULL`, musí přijímat `null`.
+- Mapování entit drž v souladu s DB včetně názvů indexů (`#[ORM\Index]`, `#[ORM\UniqueConstraint]` jako samostatné atributy – ne uvnitř `#[ORM\Table]`). Kontrola: `php console.php orm:validate-schema`.
 - Komentáře a texty v UI česky.
 
 ### Git

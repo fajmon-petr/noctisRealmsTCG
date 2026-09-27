@@ -20,6 +20,9 @@ use App\Utils\MagicAccessors;
  */
 #[ORM\Entity]
 #[ORM\Table(name: "player")]
+#[ORM\UniqueConstraint(name: "UNIQ_profiles_user", columns: ["user_id"])]
+#[ORM\Index(name: "IDX_profiles_user", columns: ["user_id"])]
+#[ORM\Index(name: "fk_profiles_faction", columns: ["faction_id"])]
 class Player
 {
     use MagicAccessors;
@@ -40,25 +43,25 @@ class Player
     #[ORM\JoinColumn(name: "faction_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     private ?Faction $faction = null;
 
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: "integer", options: ["default" => 0])]
     private int $cards = 0;
 
-    #[ORM\Column(type: "integer", name: "opened_packs")]
+    #[ORM\Column(type: "integer", name: "opened_packs", options: ["default" => 0])]
     private int $openedPacks = 0;
 
-    #[ORM\Column(type: "integer", name: "achievements")]
+    #[ORM\Column(type: "integer", name: "achievements", options: ["default" => 0])]
     private int $achievements = 0;
 
-    #[ORM\Column(type: "integer", options: ["unsigned" => true])]
+    #[ORM\Column(type: "integer", options: ["default" => 1])]
     private int $level = 1;
 
-    #[ORM\Column(type: "integer", options: ["unsigned" => true])]
+    #[ORM\Column(type: "integer", options: ["default" => 0])]
     private int $xp = 0;
 
-    #[ORM\Column(name: "moon_dust", type: "integer", options: ["unsigned" => true])]
+    #[ORM\Column(name: "moon_dust", type: "integer", options: ["unsigned" => true, "default" => 0])]
     private int $moonDust = 0;
 
-    #[ORM\Column(type: "string", length: 64, nullable: true)]
+    #[ORM\Column(type: "string", length: 100, nullable: true)]
     private ?string $avatar = null;
 
 
@@ -152,7 +155,7 @@ class Player
         $this->moonDust = max(0, $this->moonDust + $md);
     }
 
-    public function setAvatar(string $avatar): void
+    public function setAvatar(?string $avatar): void
     {
         $this->avatar = $avatar;
     }
