@@ -2,18 +2,16 @@
 
 namespace App\Presenters;
 
+use App\Model\Modules\Player\PlayerFacade;
 use Nette\Application\UI\Presenter;
-
-use App\Model\Entity\Player;
-use Doctrine\ORM\EntityManagerInterface;
 
 abstract class BasePresenter extends Presenter
 {
-    public EntityManagerInterface $em;
+    protected PlayerFacade $playerFacade;
 
-    public function __construct(EntityManagerInterface $em)
+    public function injectBase(PlayerFacade $playerFacade): void
     {
-        $this->em = $em;
+        $this->playerFacade = $playerFacade;
     }
 
     protected function beforeRender(): void
@@ -22,13 +20,8 @@ abstract class BasePresenter extends Presenter
 
         $this->template->assetsVer = getenv('ASSETS_VER') ?: time(); // v prod nasadíš ASSETS_VER=commit
 
-        $this->template->moonDust = null;
-
-        if ($this->user->isLoggedIn()) {
-            // najdi profil přihlášeného uživatele
-            $player = $this->em->getRepository(Player::class)
-                ->findOneBy(['user' => $this->user->getId()]);
-            $this->template->moonDust = $player?->getMoonDust() ?? 0;
-        }
+        $this->template->moonDust = $this->getUser()->isLoggedIn()
+            ? ($this->playerFacade->findByUserId((int) $this->getUser()->getId())?->getMoonDust() ?? 0)
+            : null;
     }
 }

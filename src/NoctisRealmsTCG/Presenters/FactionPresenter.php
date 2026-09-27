@@ -2,119 +2,66 @@
 
 namespace App\Presenters;
 
-use App\Model\Entity\Achievement;
-use App\Model\Entity\Faction;
 use App\Model\Modules\Faction\FactionFacade;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Model\Modules\Season\SeasonFacade;
 use Nette;
 
 final class FactionPresenter extends BasePresenter
 {
-    public EntityManagerInterface $em;
-
-    private FactionFacade $factionFacade;
-
-    public function __construct(EntityManagerInterface $em, FactionFacade $factionFacade) {
-        parent::__construct($em);
-        $this->factionFacade = $factionFacade;
+    public function __construct(
+        private FactionFacade $factionFacade,
+        private SeasonFacade $seasonFacade,
+    ) {
+        parent::__construct();
     }
 
     /**
      * URL: /faction?slug=noctis&season=123
-     * - slug: volitelné, když chybí, vezme se default frakce z FactionFacade
-     * - season: volitelné (int); když chybí/není platná, vezme se aktuální sezóna
+     * - slug: když chybí/neexistuje, vezme se výchozí frakce
+     * - season: když chybí/neexistuje, vezme se probíhající sezóna
      */
-    public function renderDefault(?string $slug = null): void
+    public function renderDefault(?string $slug = null, ?int $season = null): void
     {
         $this->template->showRain = true;
 
-        // 1) frakce
         $faction = $this->factionFacade->getFactionBySlugOrDefault($slug);
         if (!$faction) {
             $this->error('Faction not found', Nette\Http\IResponse::S404_NotFound);
         }
 
-        // 2) sezóna (query param ?season=ID je volitelný)
-        $seasonIdParam = $this->getParameter('season');
-        $season = null;
-        if ($seasonIdParam !== null && is_numeric($seasonIdParam) && (int)$seasonIdParam > 0) {
-            // pokud máš ve FactionFacade metodu getSeasonById, použij ji; jinak klidně nech jen getCurrentSeason()
-            if (method_exists($this->factionFacade, 'getSeasonById')) {
-                /** @var object|null $tmp */
-                $tmp = $this->factionFacade->getSeasonById((int)$seasonIdParam);
-                $season = $tmp ?: null;
-            }
-        }
-        if (!$season) {
-            $season = $this->factionFacade->getCurrentSeason();
-        }
+        $seasonEntity = ($season !== null ? $this->seasonFacade->getById($season) : null)
+            ?? $this->seasonFacade->getCurrentSeason();
 
-        // 3) agregované statistiky frakce v sezóně
-        // očekává: ['pointsTotal'=>int, 'cardsByRarity'=>['C'=>..,'U'=>..,'R'=>..,'E'=>..,'L'=>..]]
-        $stats = $this->factionFacade->getSeasonStats(
-            $faction->getId(),
-            $season?->getId()
-        );
+        // agregované statistiky frakce v sezóně
+        $stats = $this->factionFacade->getSeasonStats($faction->getId(), $seasonEntity?->getId());
+        $cards = $stats['cardsByRarity'];
 
-        /*
-        // 4) poslední příspěvky (zatím placeholder dle tvé FactionFacade)
-        $last = $this->factionFacade->getLastContributions(
-            $faction->getId(),
-            $season?->getId(),
-            20
-        );
-        */
+        $player = $this->getUser()->isLoggedIn()
+            ? $this->playerFacade->findByUserId((int) $this->getUser()->getId())
+            : null;
 
-        // 5) namapuj data pro šablonu do tvaru, který už používáš
-        $cardsByRarity = (array)($stats['cardsByRarity'] ?? []);
-        $f = [
-            'points'    => (int)($stats['pointsTotal'] ?? 0),
-            'common'    => (int)($cardsByRarity['C'] ?? 0),
-            'uncommon'  => (int)($cardsByRarity['U'] ?? 0),
-            'rare'      => (int)($cardsByRarity['R'] ?? 0),
-            'epic'      => (int)($cardsByRarity['E'] ?? 0),
-            'legendary' => (int)($cardsByRarity['L'] ?? 0),
-        ];
-
-        // 6) „seasonFaction“ objekt pro hlavičku v šabloně (název, slug, barva, začátek/konec, rank placeholder)
-        $seasonFaction = (object)[
-            'name'  => method_exists($faction, 'getName')  ? $faction->getName()  : ($faction->name ?? null),
-            'slug'  => method_exists($faction, 'getSlug')  ? $faction->getSlug()  : ($faction->slug ?? null),
-            'color' => method_exists($faction, 'getColor') ? $faction->getColor() : ($faction->color ?? null),
-            'start' => $season?->{method_exists($season, 'getStartAt') ? 'getStartAt' : (method_exists($season, 'getStartsAt') ? 'getStartsAt' : null)}()
-                        ?? null,
-            'end'   => $season?->{method_exists($season, 'getEndAt') ? 'getEndAt' : (method_exists($season, 'getEndsAt') ? 'getEndsAt' : null)}()
-                        ?? null,
-            'rank'  => null, // můžeš naplnit později (finální umístění)
-        ];
-
-        $factions = $this->factionFacade->getMainFactions();
-        $achievements = $this->factionFacade->getFactionAchievements();
-
-        // 7) předání do šablony
-        $this->template->factions      = $factions;
-        $this->template->faction       = $faction;
-        $this->template->season        = $season;
-        $this->template->f             = $f;               // pro tvoje rarity karty a body v záhlaví
-        $this->template->seasonFaction = $seasonFaction;   // pro „brand“ v hlavičce sezóny
-        //$this->template->last          = $last;            // tabulka posledních příspěvků apod.
-        $this->template->achievements  = $achievements;
-        $this->template->xp            = 0;
-        $this->template->xpToNext      = 100;
-        $this->template->nextLevel     = 2;
-        $this->template->belongsToFaction = true;
-        $this->template->dustGoal     = 1000;
-        $this->template->dustProgress     = 100;
-        $this->template->cardsGoal     = 1000;
-        $this->template->cardsProgress     = 100;
-
+        $this->template->factions = $this->factionFacade->getMainFactions();
+        $this->template->faction = $faction;
+        $this->template->season = $seasonEntity;
+        $this->template->seasonStats = $stats;
         $this->template->factionCards = [
-            'common' => 12,
-            'uncommon' => 7,
-            'rare' => 4,
-            'epic' => 2,
-            'legendary' => 1,
+            'common' => $cards['C'],
+            'uncommon' => $cards['U'],
+            'rare' => $cards['R'],
+            'epic' => $cards['E'],
+            'legendary' => $cards['L'],
         ];
+        $this->template->achievementsUpcoming = $this->factionFacade->getFactionAchievements();
+        $this->template->belongsToFaction = $player?->getFaction()?->getId() === $faction->getId();
+
+        // TODO placeholdery – level frakce a cíle příspěvků zatím nemají datový model
+        $this->template->xp = 0;
+        $this->template->xpToNext = 100;
+        $this->template->nextLevel = 2;
+        $this->template->dustGoal = 1000;
+        $this->template->dustProgress = 100;
+        $this->template->cardsGoal = 1000;
+        $this->template->cardsProgress = 100;
     }
 
     public function actionAddDust(string $slug): void

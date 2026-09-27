@@ -2,18 +2,35 @@
 
 namespace App\Model\Modules\Player;
 
+use App\Model\Entity\Faction;
 use App\Model\Entity\Player;
 use App\Model\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 
 class PlayerFacade
 {
-    public EntityManagerInterface $em;
+    /** Jednorázový bonus Moon Dustu za první výběr frakce */
+    public const FIRST_FACTION_BONUS = 200;
 
-    public function __construct(EntityManagerInterface $em) {
-        $this->em = $em;
+    public function __construct(
+        private EntityManagerInterface $em,
+    ) {}
+
+    public function findByUserId(int $userId): ?Player
+    {
+        return $this->em->getRepository(Player::class)->findOneBy(['user' => $userId]);
     }
 
+    /** Profil přihlášeného uživatele – vytvoří ho, pokud ještě neexistuje */
+    public function getForUserId(int $userId): Player
+    {
+        $user = $this->em->find(User::class, $userId);
+        if (!$user) {
+            throw new \InvalidArgumentException("Uživatel $userId neexistuje.");
+        }
+
+        return $this->getOrCreateForUser($user);
+    }
 
     public function getOrCreateForUser(User $user): Player
     {
@@ -31,20 +48,31 @@ class PlayerFacade
         return $p;
     }
 
-    public function setFactionBySlug(User $user, string $slug): Player
+    /**
+     * Uloží jméno a frakci hráče. Při první volbě frakce připíše bonus Moon Dustu.
+     *
+     * @return bool true, pokud šlo o první volbu frakce (a byl připsán bonus)
+     */
+    public function saveProfile(Player $player, string $nickname, string $factionSlug): bool
     {
-        $repoF = $this->em->getRepository(\App\Model\Entity\Faction::class);
-        /** @var \App\Model\Entity\Faction|null $faction */
-        $faction = $repoF->findOneBy(['slug' => $slug]);
+        $faction = $this->em->getRepository(Faction::class)->findOneBy(['slug' => $factionSlug]);
         if (!$faction) {
             throw new \InvalidArgumentException('Neplatná frakce.');
         }
 
-        $p = $this->getOrCreateForUser($user);
-        $p->setFaction($faction);
+        $firstFactionChoice = $player->getFaction() === null;
 
-        $this->em->flush();
+        $this->em->wrapInTransaction(function () use ($player, $nickname, $faction, $firstFactionChoice): void {
+            $player->setNickname($nickname);
+            $player->setFaction($faction);
 
-        return $p;
+            if ($firstFactionChoice) {
+                $player->addMoonDust(self::FIRST_FACTION_BONUS);
+            }
+
+            $this->em->flush();
+        });
+
+        return $firstFactionChoice;
     }
 }

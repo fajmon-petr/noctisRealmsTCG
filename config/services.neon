@@ -12,6 +12,10 @@ services:
 
 	- App\Model\Modules\Faction\FactionFacade
 
+	- App\Model\Modules\Season\SeasonFacade
+
+	- App\Model\Modules\Card\CardFacade
+
 search:
 	-	in: %appDir%
 		classes:

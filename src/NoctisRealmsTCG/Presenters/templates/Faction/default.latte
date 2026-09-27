@@ -5,7 +5,7 @@
 
 {block content}
 {* ==== očekávané proměnné z presenteru ====
-   $faction, $season, $seasonFaction
+   $faction, $season
    $factions
    $factionLevel, $xp, $xpToNext, $xpPct, $nextLevel
    $position, $seasonStats, $leaderboard, $leaderboardTotal
@@ -35,7 +35,7 @@
 
     <!-- === Banner === -->
     <div class="fx-banner mb-4">
-      <div class="fx-banner-bg" style="background-image:url('{$basePath}/assets/factions/{$seasonFaction->slug}.png')"></div>
+      <div class="fx-banner-bg" style="background-image:url('{$basePath}/assets/factions/{$slug}.png')"></div>
       <div class="fx-banner-inner">
         <div class="fx-left">
           <div class="fx-level">{$factionLevel ?? 1}</div>

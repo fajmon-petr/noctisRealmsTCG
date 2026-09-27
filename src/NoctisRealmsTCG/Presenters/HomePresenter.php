@@ -2,25 +2,16 @@
 
 namespace App\Presenters;
 
-use App\Model\Modules\Player\PlayerFacade;
 use App\Model\Modules\User\UserFacade;
-use Doctrine\ORM\EntityManagerInterface;
 use Nette\Application\UI\Form;
 use Nette\Security\AuthenticationException;
 
 final class HomePresenter extends BasePresenter
 {
-    private UserFacade $userFacade;
-
-    private PlayerFacade $playerFacade;
-
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(UserFacade $userFacade, PlayerFacade $playerFacade, EntityManagerInterface $entityManager)
-    {
-        parent::__construct($entityManager);
-        $this->userFacade = $userFacade;
-        $this->playerFacade = $playerFacade;
+    public function __construct(
+        private UserFacade $userFacade,
+    ) {
+        parent::__construct();
     }
 
     /** Přihlášení */

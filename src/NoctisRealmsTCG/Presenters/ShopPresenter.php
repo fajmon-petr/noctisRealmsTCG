@@ -2,51 +2,27 @@
 
 namespace App\Presenters;
 
-use App\Model\Entity\Card;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Tools\Pagination\Paginator;
+use App\Model\Modules\Card\CardFacade;
 
 final class ShopPresenter extends BasePresenter
 {
-    public function __construct(EntityManagerInterface $em)
-    {
-        parent::__construct($em);
+    private const PER_PAGE = 24;
+
+    public function __construct(
+        private CardFacade $cardFacade,
+    ) {
+        parent::__construct();
     }
 
-    public function renderDefault(): void
+    /**
+     * @param string $rarity C/U/R/E/L
+     * @param string $faction slug frakce
+     * @param string $sort new|name_asc
+     */
+    public function renderDefault(string $q = '', string $rarity = '', string $faction = '', string $sort = 'new', int $page = 1): void
     {
-        // --- vstupní filtry ---
-        $q       = (string) $this->getParameter('q', '');
-        $rarity  = (string) $this->getParameter('rarity', '');   // C/U/R/E/L
-        $faction = (string) $this->getParameter('faction', '');  // slug frakce
-        $sort    = (string) $this->getParameter('sort', 'new');  // new|name_asc
-        $page    = max(1, (int) $this->getParameter('page', 1));
-        $perPage = 24;
-
-        $qb = $this->em->createQueryBuilder()
-            ->select('c', 'f')
-            ->from(Card::class, 'c')
-            ->leftJoin('c.faction', 'f');
-
-        if ($q !== '') {
-            $qb->andWhere('c.name LIKE :q')->setParameter('q', "%$q%");
-        }
-
-        if ($rarity !== '') {
-            $qb->andWhere('c.rarity = :rarity')->setParameter('rarity', $rarity);
-        }
-
-        if ($faction !== '') {
-            $qb->andWhere('f.slug = :faction')->setParameter('faction', $faction);
-        }
-
-        match ($sort) {
-            'name_asc' => $qb->orderBy('c.name', 'ASC'),
-            default    => $qb->orderBy('c.id', 'DESC'),
-        };
-
-        $qb->setFirstResult(($page - 1) * $perPage)->setMaxResults($perPage);
-        $paginator = new Paginator($qb);
+        $page = max(1, $page);
+        $paginator = $this->cardFacade->search($q, $rarity, $faction, $sort, $page, self::PER_PAGE);
 
         $this->template->items   = iterator_to_array($paginator);
         $this->template->filters = [
@@ -55,14 +31,14 @@ final class ShopPresenter extends BasePresenter
             'faction' => $faction,
             'sort'    => $sort,
             'page'    => $page,
-            'perPage' => $perPage,
+            'perPage' => self::PER_PAGE,
             'total'   => count($paginator),
         ];
     }
 
     public function renderDetail(int $id): void
     {
-        $card = $this->em->find(Card::class, $id);
+        $card = $this->cardFacade->getById($id);
         if (!$card) {
             $this->error('Item not found');
         }

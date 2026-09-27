@@ -6,12 +6,13 @@ namespace App\Model\Modules\Faction;
 use App\Model\Entity\Achievement;
 use App\Model\Entity\Faction;
 use App\Model\Entity\FactionSeasonStats;
-use App\Model\Entity\Season;
 use Doctrine\ORM\EntityManagerInterface;
-use DateTimeImmutable;
 
 class FactionFacade
 {
+    /** Frakce zobrazená, když slug chybí nebo neexistuje */
+    public const DEFAULT_SLUG = 'ignis';
+
     public function __construct(
         private EntityManagerInterface $em,
     ) {}
@@ -20,35 +21,8 @@ class FactionFacade
     {
         $repo = $this->em->getRepository(Faction::class);
 
-        if ($slug) {
-            $bySlug = $repo->findOneBy(['slug' => $slug]);
-            if ($bySlug) {
-                return $bySlug;
-            }
-        }
-
-        // deterministický default
-        foreach (['ignis','Ignis','IGNS'] as $try) {
-            $byCode = $repo->findOneBy(['name' => $try]);
-            if ($byCode) {
-                return $byCode;
-            }
-        }
-
-        return $repo->findOneBy([]); // první v DB jako nouzovka
-    }
-
-    public function getCurrentSeason(): ?Season
-    {
-        $repo = $this->em->getRepository(Season::class);
-        $now  = new DateTimeImmutable();
-
-        return $repo->createQueryBuilder('s')
-            ->where('s.startAt <= :now')
-            ->andWhere('(s.endAt IS NULL OR s.endAt >= :now)')
-            ->setParameter('now', $now)
-            ->setMaxResults(1)
-            ->getQuery()->getOneOrNullResult();
+        return ($slug ? $repo->findOneBy(['slug' => $slug]) : null)
+            ?? $repo->findOneBy(['slug' => self::DEFAULT_SLUG]);
     }
 
     /**
@@ -56,52 +30,48 @@ class FactionFacade
      */
     public function getSeasonStats(int $factionId, ?int $seasonId): array
     {
-        $repo = $this->em->getRepository(FactionSeasonStats::class);
-
-        $criteria = ['faction' => $factionId];
-        $seasonId === null
-            ? $criteria['season'] = null
-            : $criteria['season'] = $seasonId;
-
         /** @var FactionSeasonStats|null $row */
-        $row = $repo->findOneBy($criteria);
+        $row = $this->em->getRepository(FactionSeasonStats::class)
+            ->findOneBy(['faction' => $factionId, 'season' => $seasonId]);
 
         if (!$row) {
             return [
                 'pointsTotal'   => 0,
-                'cardsByRarity' => ['C'=>0,'U'=>0,'R'=>0,'E'=>0,'L'=>0],
+                'cardsByRarity' => ['C' => 0, 'U' => 0, 'R' => 0, 'E' => 0, 'L' => 0],
             ];
         }
 
         return [
-            'pointsTotal'   => (int)$row->getPointsTotal(),
+            'pointsTotal'   => $row->getPointsTotal(),
             'cardsByRarity' => [
-                'C' => (int)$row->getCardsCommon(),
-                'U' => (int)$row->getCardsUncommon(),
-                'R' => (int)$row->getCardsRare(),
-                'E' => (int)$row->getCardsEpic(),
-                'L' => (int)$row->getCardsLegendary(),
+                'C' => $row->getCommon(),
+                'U' => $row->getUncommon(),
+                'R' => $row->getRare(),
+                'E' => $row->getEpic(),
+                'L' => $row->getLegendary(),
             ],
         ];
     }
 
-    public function getMainFactions() : array
+    /** @return Faction[] frakce bez neutrální */
+    public function getMainFactions(): array
     {
         return $this->em->getRepository(Faction::class)->createQueryBuilder('f')
-        ->where('f.slug != :neutral')
-        ->setParameter('neutral', 'neutral')
-        ->orderBy('f.id', 'ASC')
-        ->getQuery()
-        ->getResult();
+            ->where('f.slug != :neutral')
+            ->setParameter('neutral', 'neutral')
+            ->orderBy('f.id', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 
+    /** @return Achievement[] */
     public function getFactionAchievements(): array
     {
         return $this->em->getRepository(Achievement::class)->createQueryBuilder('a')
-        ->where('a.type = :type')
-        ->setParameter('type', 'faction')
-        ->orderBy('a.id', 'ASC')
-        ->getQuery()
-        ->getResult();
+            ->where('a.type = :type')
+            ->setParameter('type', 'faction')
+            ->orderBy('a.id', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 }

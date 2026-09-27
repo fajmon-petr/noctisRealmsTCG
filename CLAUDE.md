@@ -44,7 +44,10 @@ Webová sběratelská karetní hra (TCG). Hráč se zaregistruje, vybere si jedn
 
 ### Kód
 - `declare(strict_types=1);`, typované vlastnosti a návratové typy.
-- Logika a dotazy patří do fasád/služeb, ne do presenterů.
+- Logika a dotazy patří do fasád/služeb, ne do presenterů. Presentery nepoužívají `EntityManager` přímo.
+- Presentery dědí z `BasePresenter` (má `$playerFacade`); stránky jen pro přihlášené z `SecuredPresenter`. Závislosti přes konstruktor (promoted properties).
+- Nové fasády/služby registrovat v `config/services.neon` (search prohledává jen `app/`).
+- Přístup k entitám: v PHP kódu vždy gettery/settery; v Latte šablonách je povolený property zápis (`$player->faction->slug`) přes `MagicAccessors`.
 - Komentáře a texty v UI česky.
 - Necommitovat bez vyžádání.
 
