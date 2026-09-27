@@ -49,7 +49,9 @@ Webová sběratelská karetní hra (TCG). Hráč se zaregistruje, vybere si jedn
 - Nové fasády/služby registrovat v `config/services.neon` (search prohledává jen `app/`).
 - Přístup k entitám: v PHP kódu vždy gettery/settery; v Latte šablonách je povolený property zápis (`$player->faction->slug`) přes `MagicAccessors`.
 - Komentáře a texty v UI česky.
-- Necommitovat bez vyžádání.
+
+### Git
+- **Nikdy necommitovat** (ani `git add`, `git stash`, `git reset` a jiné operace měnící stav repozitáře). Uživatel si změny vždy nejdřív sám zkontroluje a commituje sám. Po dokončení práce jen shrnout, co se změnilo.
 
 ## Příkazy
 
