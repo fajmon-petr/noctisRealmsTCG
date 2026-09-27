@@ -1,9 +1,8 @@
 extensions:
-    console: Contributte\Console\DI\ConsoleExtension
     doctrine.dbal: Nettrine\DBAL\DI\DbalExtension
     doctrine.orm: Nettrine\ORM\DI\OrmExtension
-    doctrine.migrations: Nettrine\Migrations\DI\MigrationsExtension
 
+# Připojení k DB – čte ho i phinx.php (migrace)
 doctrine.dbal:
     connections:
         default:
@@ -22,8 +21,3 @@ doctrine.orm:
                 App:
                     directories: [%appDir%/../src/NoctisRealmsTCG/Model/Entity]
                     namespace: App\Model\Entity
-
-doctrine.migrations:
-    directories:
-        default: %appDir%/Migrations
-    

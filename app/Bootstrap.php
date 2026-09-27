@@ -30,6 +30,14 @@ class Bootstrap
 	}
 
 
+	public function bootConsoleApplication(): Nette\DI\Container
+	{
+		$this->configurator->setDebugMode(true);
+		$this->setupContainer();
+		return $this->configurator->createContainer();
+	}
+
+
 	public function initializeEnvironment(): void
 	{
 		//$this->configurator->setDebugMode('secret@23.75.345.200'); // enable for your remote IP

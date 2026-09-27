@@ -19,7 +19,8 @@ Webová sběratelská karetní hra (TCG). Hráč se zaregistruje, vybere si jedn
   - `Presenters` + `Presenters/templates` – presentery a šablony
 - `app/` – Bootstrap, router, chybové presentery (`App\Presentation\Error`)
 - `config/` – neon konfigurace (`local.neon` se necommituje)
-- `src/Migrations/` – ruční SQL migrace `YYYY-MM-DD-NN-nazev.sql`
+- `db/migrations/` – Phinx migrace, `db/seeds/` – Phinx seedery (základní data), `db/legacy/` – staré ruční SQL (jen historie)
+- `phinx.php` – konfigurace Phinxu; připojení čte z `config/doctrine.neon`
 - `tests/` – testy, struktura zrcadlí `src/`
 - `plans/` – plány práce
 
@@ -27,7 +28,9 @@ Webová sběratelská karetní hra (TCG). Hráč se zaregistruje, vybere si jedn
 
 ### Databáze
 - **Jakoukoli operaci, která mění databázi (INSERT/UPDATE/DELETE, DDL, spouštění migrací), nejdřív potvrď s uživatelem.** Čtení (SELECT, SHOW) je v pořádku bez ptaní.
-- Změny schématu = nový soubor v `src/Migrations/` + úprava entity. Migrace spouští uživatel (nebo Claude po potvrzení).
+- Migrace: **Phinx**. Změna schématu = nová migrace (`php vendor/bin/phinx create NazevZmeny`) + ruční úprava entity. Phinx neumí číst entity – soulad hlídá uživatel, pomocí `php console.php orm:validate-schema`.
+- Migrace spouští uživatel (nebo Claude po potvrzení). Pozor: i `phinx status` při prvním připojení k DB vytvoří tabulku `phinxlog` – na DB bez ní je to zápis.
+- Prostředí: `development` = DB `noctis`, `testing` = DB `noctis_test`.
 - Testovací účet (smí zůstat v DB): `claude-test@example.com` / `Admin1` (hráč `ClaudeTest`, frakce Noctis). Používat pro testování stránek po přihlášení.
 
 ### Plány
@@ -59,4 +62,10 @@ Webová sběratelská karetní hra (TCG). Hráč se zaregistruje, vybere si jedn
 php vendor/bin/tester tests -s -C     # testy
 composer phpstan                      # statická analýza (level 5)
 php vendor/bin/latte-lint src         # kontrola Latte šablon
+php console.php orm:validate-schema   # soulad entit s DB (jen čte)
+
+# migrace (mění DB – jen po potvrzení)
+php vendor/bin/phinx status [-e testing]
+php vendor/bin/phinx migrate [-e testing]
+php vendor/bin/phinx seed:run -e testing
 ```

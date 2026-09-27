@@ -25,8 +25,8 @@
 		"nettrine/orm": "^0.10.0",
 		"contributte/console": "^0.10.1",
 		"symfony/cache": "^7.3",
-		"nettrine/migrations": "^0.10.0",
-		"doctrine/orm": "^3.5"
+		"doctrine/orm": "^3.5",
+		"robmorgan/phinx": "^0.16"
 	},
 	"require-dev": {
 		"nette/tester": "^2.5",
@@ -53,7 +53,8 @@
 	"minimum-stability": "stable",
 	"config": {
 		"allow-plugins": {
-			"symfony/thanks": true
+			"symfony/thanks": true,
+			"phpstan/extension-installer": false
 		}
 	}
 }

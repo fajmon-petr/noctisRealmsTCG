@@ -38,7 +38,7 @@ di:
         tags: no
 
 extensions:
-    console: Contributte\Console\DI\ConsoleExtension
+    console: Contributte\Console\DI\ConsoleExtension(%consoleMode%)
 
 console:
     name: Noctis Realms TCG
